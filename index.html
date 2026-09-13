@@ -151,6 +151,28 @@ button{font:inherit;color:inherit;cursor:pointer}
 .lang-chip:hover{border-color:var(--ink-2)}
 .lang-chip svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none;flex:none}
 
+/* ---------- place ---------- */
+.place{padding-top:34px}
+.place-list{
+  list-style:none;margin:26px 0 0;padding:0;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.place-opt{
+  width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:7px;
+  transition:border-color .15s,box-shadow .15s;
+}
+.place-opt:hover{border-color:var(--line-strong)}
+.place-opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:var(--shadow)}
+.place-opt svg{width:30px;height:30px;stroke:var(--ink-3);stroke-width:1.6;fill:none;transition:stroke .15s}
+.place-opt[aria-pressed="true"] svg{stroke:var(--ink)}
+.place-t{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.9}
+.place-d{color:var(--ink-2);font-size:13.5px}
+.place-gear{
+  font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.03em;
+  border-top:1px solid var(--line);padding-top:8px;margin-top:2px;
+}
+
 /* ---------- setup ---------- */
 .setup,.intro{padding-top:34px}
 .intro .setup-lead h2{font-size:48px}
@@ -323,6 +345,9 @@ footer.note{margin-top:28px;color:var(--ink-3);font-size:12.5px;max-width:70ch}
   .intro .setup-lead h2{font-size:36px}
   .how{grid-template-columns:1fr;gap:16px}
   .lang-list{grid-template-columns:repeat(2,1fr);gap:8px}
+  .place-list{grid-template-columns:1fr;gap:10px}
+  .place-opt{padding:16px}
+  .place-t{font-size:26px}
   .lang-opt{padding:12px 13px}
   .lang-native{font-size:17px}
   .freq{grid-template-columns:auto 1fr;gap:12px}
@@ -421,6 +446,10 @@ body{
         <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13M8 1.5c1.8 2 2.7 4.1 2.7 6.5S9.8 12.5 8 14.5C6.2 12.5 5.3 10.4 5.3 8S6.2 3.5 8 1.5z"/></svg>
         <span id="langChipLabel"></span>
       </button>
+      <button class="lang-chip" id="btnPlaceChip" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8h13M3.5 5v6M12.5 5v6M6 3.5v9M10 3.5v9" stroke-linecap="round"/></svg>
+        <span id="placeChipLabel"></span>
+      </button>
       <button class="install" id="btnInstall" type="button">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v9M4.5 7L8 10.5 11.5 7M2 13.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span data-i18n="install"></span>
@@ -441,6 +470,33 @@ body{
     <ul class="lang-list" id="langList"></ul>
   </section>
 
+  <!-- ===== מקום האימון ===== -->
+  <section class="place" id="place" hidden>
+    <button class="backlink" id="btnToLang" type="button" data-i18n="backLang"></button>
+    <div class="setup-lead">
+      <h2 data-i18n="placeTitle"></h2>
+      <p data-i18n="placeLead"></p>
+    </div>
+    <ul class="place-list">
+      <li>
+        <button class="place-opt" id="optGym" type="button">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 16h28M6 10v12M26 10v12M11 6v20M21 6v20" stroke-linecap="round"/></svg>
+          <span class="place-t" data-i18n="gymT"></span>
+          <span class="place-d" data-i18n="gymD"></span>
+          <span class="place-gear" data-i18n="gymGear"></span>
+        </button>
+      </li>
+      <li>
+        <button class="place-opt" id="optHome" type="button">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 14L16 4l12 10" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 13v15h18V13" stroke-linejoin="round"/><path d="M12 22h8" stroke-linecap="round"/></svg>
+          <span class="place-t" data-i18n="homeT"></span>
+          <span class="place-d" data-i18n="homeD"></span>
+          <span class="place-gear" data-i18n="homeGear"></span>
+        </button>
+      </li>
+    </ul>
+  </section>
+
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-inner">
       <h3 id="sheetTitle" data-i18n="sheetTitle"></h3>
@@ -451,7 +507,7 @@ body{
 
   <!-- ===== מסך בחירה ===== -->
   <section class="intro" id="intro" hidden>
-    <button class="backlink" id="btnToLang" type="button" data-i18n="backLang"></button>
+    <button class="backlink" id="btnToPlace" type="button" data-i18n="backPlace"></button>
     <div class="setup-lead">
       <h2 data-i18n="howTitle"></h2>
       <p data-i18n="howLead"></p>
@@ -581,6 +637,71 @@ const EX = {
   ]
 };
 
+/* מאגר האימון הביתי: משקולות יד, מוט מתח ומשקל גוף בלבד */
+const EX_HOME = {
+  chest:[
+    {en:'Dumbbell Floor Press',   s:4,r:'8-10',  t:90},
+    {en:'Incline Dumbbell Press', s:3,r:'8-10',  t:90},
+    {en:'Push Up',                s:3,r:'',      t:60, fail:true},
+    {en:'Decline Push Up',        s:3,r:'10-15', t:60},
+    {en:'Dumbbell Fly',           s:3,r:'12',    t:60},
+    {en:'Dumbbell Pullover',      s:3,r:'10-12', t:75},
+    {en:'Diamond Push Up',        s:3,r:'8-12',  t:60}
+  ],
+  back:[
+    {en:'Wide Grip Pull Up',      s:4,r:'6-10',  t:120},
+    {en:'Chin Up',                s:3,r:'6-10',  t:105},
+    {en:'One Arm Dumbbell Row',   s:4,r:'10-12', t:75},
+    {en:'Two Arm Dumbbell Row',   s:3,r:'10-12', t:75},
+    {en:'Inverted Row',           s:3,r:'10-15', t:75},
+    {en:'Dumbbell Deadlift',      s:4,r:'8-10',  t:105},
+    {en:'Dumbbell Shrug',         s:3,r:'12-15', t:60}
+  ],
+  legs:[
+    {en:'Goblet Squat',           s:4,r:'10-12', t:105},
+    {en:'Bulgarian Split Squat',  s:3,r:'10',    t:90, leg:true},
+    {en:'Romanian Deadlift',      s:3,r:'10-12', t:90},
+    {en:'Walking Lunge',          s:3,r:'12',    t:75, leg:true},
+    {en:'Dumbbell Step Up',       s:3,r:'10',    t:75, leg:true},
+    {en:'Glute Bridge',           s:3,r:'12-15', t:60},
+    {en:'Single Leg Romanian Deadlift',s:3,r:'10',t:75, leg:true},
+    {en:'Standing Calf Raise',    s:4,r:'15-20', t:45}
+  ],
+  shoulders:[
+    {en:'Seated Dumbbell Press',  s:4,r:'8-10',  t:90},
+    {en:'Dumbbell Lateral Raise', s:4,r:'12-15', t:60},
+    {en:'Bent Over Rear Delt Fly',s:3,r:'15',    t:60},
+    {en:'Arnold Press',           s:3,r:'10',    t:75},
+    {en:'Pike Push Up',           s:3,r:'8-12',  t:75},
+    {en:'Front Raise',            s:3,r:'12',    t:45},
+    {en:'Single Arm Dumbbell Press',s:3,r:'10',  t:75}
+  ],
+  biceps:[
+    {en:'Dumbbell Biceps Curl',   s:4,r:'10-12', t:75},
+    {en:'Hammer Curl',            s:3,r:'10-12', t:60},
+    {en:'Incline Dumbbell Curl',  s:3,r:'10-12', t:60},
+    {en:'Concentration Curl',     s:3,r:'12',    t:60},
+    {en:'Cross Body Hammer Curl', s:3,r:'12',    t:60}
+  ],
+  triceps:[
+    {en:'Close Grip Push Up',     s:4,r:'10-15', t:60},
+    {en:'Overhead Triceps Extension',s:3,r:'10-12',t:60},
+    {en:'Skull Crusher',          s:3,r:'10',    t:75},
+    {en:'Bench Dip',              s:3,r:'10-15', t:60},
+    {en:'Triceps Kickback',       s:3,r:'12-15', t:45}
+  ],
+  core:[
+    {en:'Plank',                  s:3,r:'45-60', t:45, sec:true},
+    {en:'Hanging Leg Raise',      s:3,r:'10-12', t:60},
+    {en:'Dead Bug',               s:3,r:'12',    t:45},
+    {en:'Side Plank',             s:3,r:'30-45', t:30, sec:true},
+    {en:'Bicycle Crunch',         s:3,r:'20',    t:45},
+    {en:'Russian Twist',          s:3,r:'20',    t:45},
+    {en:'Mountain Climber',       s:3,r:'30',    t:45, sec:true},
+    {en:'Hollow Body Hold',       s:3,r:'30',    t:45, sec:true}
+  ]
+};
+
 const SPLITS = {
   2:{slots:[0,3], days:[
       {color:'chest', recipe:[['chest',2],['back',2],['shoulders',2],['biceps',1],['triceps',1]]},
@@ -658,7 +779,19 @@ ui:{
  androidSteps:['הקש על תפריט שלוש הנקודות <b>⋮</b> בכרום.','בחר <b>התקנת אפליקציה</b> או <b>הוספה למסך הבית</b>.','אשר, והאייקון יופיע בין האפליקציות שלך.'],
  desktopSteps:['לחץ על אייקון ההתקנה בשורת הכתובת של הדפדפן.','או: תפריט הדפדפן ← <b>התקנה</b>.'],
  dow:['א','ב','ג','ד','ה','ו','ש'],
- dowFull:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת']
+ dowFull:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'],
+ placeTitle:'איפה אתה מתאמן?', placeLead:'זה קובע מאיזה מאגר תרגילים נבנית התוכנית. אפשר להחליף בכל רגע מהכפתור שבראש העמוד.',
+ gymT:'חדר כושר', gymD:'כל מאגר התרגילים, כולל מוטות, מכונות ופולים.', gymGear:'מוט · מכונות · פולים · משקולות',
+ homeT:'אימון ביתי', homeD:'תרגילים שדורשים רק משקולות יד, מוט מתח ומשקל גוף.', homeGear:'משקולות יד · מוט מתח · משקל גוף',
+ backPlace:'חזרה למקום האימון'
+},
+warmHome:{
+ chest:'2 סטים של שכיבות סמיכה קלות + סבבי כתף וזרוע',
+ back:'תלייה על מוט המתח 20 שנ׳ + 2 סטים של חתירה במשקולת קלה',
+ legs:'2 סטים של סקוואט במשקל גוף + פתיחת אגן וקרסוליים',
+ shoulders:'סבבי כתף ו-2 סטים של הרחקות צד במשקולת קלה',
+ biceps:'2 סטים קלים של כפיפות מרפק ופשיטות מעל הראש',
+ core:'חתול־פרה, גשר ישבן ו-30 שנ׳ פלאנק קל'
 },
 g:{chest:'חזה',back:'גב',legs:'רגליים',shoulders:'כתפיים',biceps:'ביצפס',triceps:'טריצפס',core:'ליבה'},
 sp:{
@@ -739,7 +872,29 @@ ex:{
 'Bicycle Crunch':['אופני בטן','מרפק לברך הנגדית בקצב איטי ומבוקר'],
 'Russian Twist':['רוסיאן טוויסט','הסיבוב מגיע מהגו, לא מהידיים'],
 'Ab Wheel Rollout':['גלגלת בטן','אגן מכווץ לאורך כל הגלגול, בלי קשת בגב'],
-'Hollow Body Hold':['הולו הולד','הגב התחתון צמוד לרצפה לכל אורך ההחזקה']
+'Hollow Body Hold':['הולו הולד','הגב התחתון צמוד לרצפה לכל אורך ההחזקה'],
+'Dumbbell Floor Press':['לחיצת חזה על הרצפה','המרפקים נעצרים ברצפה — טווח בטוח לכתף גם בלי ספוט'],
+'Decline Push Up':['שכיבות סמיכה ברגליים מוגבהות','ככל שהרגליים גבוהות יותר, העומס עובר לחזה העליון'],
+'Dumbbell Pullover':['פולאובר עם משקולת','ירידה איטית מעבר לראש עד מתיחה בבית השחי'],
+'Diamond Push Up':['שכיבות סמיכה צרות','האגודלים והאצבעות נוגעים, המרפקים צמודים לגוף'],
+'Chin Up':['מתח באחיזה הפוכה','אחיזה ברוחב כתפיים עם כפות ידיים אליך — הביצפס עוזר'],
+'Two Arm Dumbbell Row':['חתירה בשתי משקולות','גו ב-45°, מושכים לכיוון המותניים ולא לחזה'],
+'Inverted Row':['חתירה אופקית מתחת למוט','גוף בקו ישר, החזה נוגע בגובה המוט'],
+'Dumbbell Deadlift':['מכרה מתים עם משקולות','המשקולות צמודות לרגליים, הדחיפה מהעקבים'],
+'Dumbbell Shrug':['משיכות כתפיים','הרמה ישרה למעלה בלי סיבוב, עצירה של שנייה'],
+'Goblet Squat':['סקוואט גובלט','משקולת צמודה לחזה, גו זקוף וירידה עמוקה'],
+'Dumbbell Step Up':['עליות על מדרגה','דחיפה מהעקב של הרגל העליונה, בלי קפיצה מלמטה'],
+'Glute Bridge':['גשר ישבן','דחיפה מהעקבים וכיווץ ישבן למעלה, בלי קשת בגב'],
+'Single Leg Romanian Deadlift':['מכרה מתים רומני על רגל אחת','האגן נשאר מקביל לרצפה, הרגל האחורית בקו הגו'],
+'Pike Push Up':['שכיבות סמיכה בפייק','אגן גבוה, הראש יורד קדימה לכפות הידיים'],
+'Single Arm Dumbbell Press':['לחיצת כתף ביד אחת','לכווץ בטן וישבן כדי שהגו לא ייטה הצידה'],
+'Dumbbell Biceps Curl':['כפיפות מרפק עם משקולות','מרפקים צמודים לגוף, סיבוב קל של כף היד בסוף'],
+'Concentration Curl':['כפיפות בריכוז','המרפק נשען על הירך הפנימית, בלי תנופה'],
+'Cross Body Hammer Curl':['כפיפות פטיש חוצות','להביא את המשקולת לכתף הנגדית'],
+'Close Grip Push Up':['שכיבות סמיכה באחיזה צרה','ידיים ברוחב כתפיים, מרפקים אחורה לאורך הגוף'],
+'Bench Dip':['מקבילים על כיסא','הגב קרוב לכיסא, לרדת עד 90° במרפק'],
+'Dead Bug':['דד באג','הגב התחתון צמוד לרצפה, יד ורגל נגדיות יורדות יחד'],
+'Mountain Climber':['מטפסי הרים','אגן נמוך ויציב, הברכיים מתחלפות בקצב'],
 }};
 T.en = {
 ui:{
@@ -772,7 +927,19 @@ ui:{
  androidSteps:['Tap the three-dot menu <b>⋮</b> in Chrome.','Choose <b>Install app</b> or <b>Add to Home screen</b>.','Confirm, and the icon joins your other apps.'],
  desktopSteps:['Click the install icon in the browser address bar.','Or: browser menu → <b>Install</b>.'],
  dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
- dowFull:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+ dowFull:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+ placeTitle:'Where do you train?', placeLead:'This decides which pool of exercises the plan is built from. You can switch any time from the button at the top of the page.',
+ gymT:'Gym', gymD:'The full exercise pool, including barbells, machines and cables.', gymGear:'Barbell · Machines · Cables · Dumbbells',
+ homeT:'Home workout', homeD:'Only exercises that need dumbbells, a pull-up bar and your bodyweight.', homeGear:'Dumbbells · Pull-up bar · Bodyweight',
+ backPlace:'Back to where you train'
+},
+warmHome:{
+ chest:'2 sets of easy push-ups plus shoulder and arm circles',
+ back:'20 sec hanging from the pull-up bar, then 2 light dumbbell row sets',
+ legs:'2 sets of bodyweight squats plus hip and ankle openers',
+ shoulders:'Shoulder circles and 2 sets of light lateral raises',
+ biceps:'2 light sets of curls and overhead extensions',
+ core:'Cat-cow, glute bridge and a 30 sec easy plank'
 },
 g:{chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',core:'Core'},
 sp:{
@@ -853,7 +1020,29 @@ ex:{
 'Bicycle Crunch':['Bicycle Crunch','Elbow to the opposite knee, slow and controlled'],
 'Russian Twist':['Russian Twist','The rotation comes from the torso, not the arms'],
 'Ab Wheel Rollout':['Ab Wheel Rollout','Pelvis tucked through the whole roll, no arch in the back'],
-'Hollow Body Hold':['Hollow Body Hold','Lower back pressed to the floor for the whole hold']
+'Hollow Body Hold':['Hollow Body Hold','Lower back pressed to the floor for the whole hold'],
+'Dumbbell Floor Press':['Dumbbell Floor Press','The elbows stop at the floor — a safe shoulder range with no spotter'],
+'Decline Push Up':['Feet-Elevated Push Up','The higher the feet, the more the load shifts to the upper chest'],
+'Dumbbell Pullover':['Dumbbell Pullover','Lower slowly past the head until you feel the stretch under the armpit'],
+'Diamond Push Up':['Diamond Push Up','Thumbs and index fingers touching, elbows tucked to the body'],
+'Chin Up':['Chin Up','Shoulder-width underhand grip — the biceps help on this one'],
+'Two Arm Dumbbell Row':['Two Arm Dumbbell Row','Torso at 45°, pull toward the waist rather than the chest'],
+'Inverted Row':['Inverted Row','Body in a straight line, chest meets the bar'],
+'Dumbbell Deadlift':['Dumbbell Deadlift','Dumbbells close to the legs, drive through the heels'],
+'Dumbbell Shrug':['Dumbbell Shrug','Lift straight up with no rolling, hold for a second'],
+'Goblet Squat':['Goblet Squat','Dumbbell held at the chest, torso upright and a deep descent'],
+'Dumbbell Step Up':['Dumbbell Step Up','Drive through the heel of the top leg, no hop from the bottom'],
+'Glute Bridge':['Glute Bridge','Push through the heels and squeeze the glutes, no arch in the back'],
+'Single Leg Romanian Deadlift':['Single Leg Romanian Deadlift','Hips stay square to the floor, back leg in line with the torso'],
+'Pike Push Up':['Pike Push Up','Hips high, the head travels forward toward your hands'],
+'Single Arm Dumbbell Press':['Single Arm Dumbbell Press','Brace the abs and glutes so the torso does not lean sideways'],
+'Dumbbell Biceps Curl':['Dumbbell Biceps Curl','Elbows pinned to the body, slight wrist turn at the top'],
+'Concentration Curl':['Concentration Curl','Elbow braced on the inner thigh, no swing'],
+'Cross Body Hammer Curl':['Cross Body Hammer Curl','Bring the dumbbell across to the opposite shoulder'],
+'Close Grip Push Up':['Close Grip Push Up','Hands at shoulder width, elbows driving back along the body'],
+'Bench Dip':['Bench Dip','Back close to the bench, descend to 90° at the elbow'],
+'Dead Bug':['Dead Bug','Lower back glued to the floor, opposite arm and leg lower together'],
+'Mountain Climber':['Mountain Climber','Hips low and steady, knees alternating at a rhythm'],
 }};
 T.ar = {
 ui:{
@@ -886,7 +1075,19 @@ ui:{
  androidSteps:['اضغط قائمة النقاط الثلاث <b>⋮</b> في كروم.','اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.','أكّد، وستظهر الأيقونة بين تطبيقاتك.'],
  desktopSteps:['اضغط أيقونة التثبيت في شريط عنوان المتصفح.','أو: قائمة المتصفح ← <b>تثبيت</b>.'],
  dow:['ح','ن','ث','ر','خ','ج','س'],
- dowFull:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
+ dowFull:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'],
+ placeTitle:'أين تتمرّن؟', placeLead:'هذا يحدّد مجموعة التمارين التي تُبنى منها الخطة. يمكنك التبديل في أي وقت من الزر أعلى الصفحة.',
+ gymT:'النادي', gymD:'مجموعة التمارين كاملة، بما فيها البار والأجهزة والبكرات.', gymGear:'بار · أجهزة · بكرات · دمبل',
+ homeT:'تمرين منزلي', homeD:'تمارين تحتاج فقط إلى دمبل وعقلة ووزن الجسم.', homeGear:'دمبل · عقلة · وزن الجسم',
+ backPlace:'العودة إلى مكان التمرين'
+},
+warmHome:{
+ chest:'مجموعتان من الضغط الخفيف مع دوائر للكتف والذراع',
+ back:'تعلّق على العقلة 20 ثانية ثم مجموعتان خفيفتان من التجديف بالدمبل',
+ legs:'مجموعتان قرفصاء بوزن الجسم مع فتح الورك والكاحل',
+ shoulders:'دوائر كتف ومجموعتان من الرفع الجانبي بوزن خفيف',
+ biceps:'مجموعتان خفيفتان من الثني والمدّ فوق الرأس',
+ core:'قط-بقرة، جسر المؤخرة و30 ثانية بلانك خفيف'
 },
 g:{chest:'الصدر',back:'الظهر',legs:'الأرجل',shoulders:'الأكتاف',biceps:'البايسبس',triceps:'الترايسبس',core:'الجذع'},
 sp:{
@@ -967,7 +1168,29 @@ ex:{
 'Bicycle Crunch':['طيّ الدراجة','المرفق نحو الركبة المقابلة بإيقاع بطيء ومضبوط'],
 'Russian Twist':['اللفّة الروسية','الدوران من الجذع لا من الذراعين'],
 'Ab Wheel Rollout':['عجلة البطن','الحوض مشدود طوال التدحرج، دون تقويس الظهر'],
-'Hollow Body Hold':['وضعية الجسم المجوّف','أسفل الظهر ملاصق للأرض طوال مدة الثبات']
+'Hollow Body Hold':['وضعية الجسم المجوّف','أسفل الظهر ملاصق للأرض طوال مدة الثبات'],
+'Dumbbell Floor Press':['ضغط الدمبل على الأرض','المرفقان يتوقفان عند الأرض — مدى آمن للكتف حتى بلا مساعد'],
+'Decline Push Up':['ضغط مع رفع القدمين','كلما ارتفعت القدمان انتقل الحمل أكثر إلى أعلى الصدر'],
+'Dumbbell Pullover':['بُل أوفر بالدمبل','نزول بطيء خلف الرأس حتى الشعور بالإطالة تحت الإبط'],
+'Diamond Push Up':['ضغط الماسة','الإبهامان والسبابتان متلامسان، والمرفقان ملاصقان للجسم'],
+'Chin Up':['عقلة بقبضة معكوسة','قبضة بعرض الكتفين والكفّان نحوك — البايسبس يساعد هنا'],
+'Two Arm Dumbbell Row':['تجديف بدمبلين','الجذع بزاوية 45°، واسحب نحو الخصر لا نحو الصدر'],
+'Inverted Row':['تجديف أفقي تحت البار','الجسم على خط مستقيم، والصدر يصل إلى البار'],
+'Dumbbell Deadlift':['الرفعة الميتة بالدمبل','الدمبلان قريبان من الساقين، والدفع من الكعبين'],
+'Dumbbell Shrug':['رفع الكتفين بالدمبل','ارفع بشكل مستقيم دون تدوير، مع ثبات لثانية'],
+'Goblet Squat':['قرفصاء الكأس','الدمبل ملاصق للصدر، الجذع منتصب ونزول عميق'],
+'Dumbbell Step Up':['الصعود على درجة بالدمبل','ادفع من كعب الساق العليا، دون قفز من الأسفل'],
+'Glute Bridge':['جسر المؤخرة','ادفع من الكعبين واضغط المؤخرة في الأعلى، دون تقويس الظهر'],
+'Single Leg Romanian Deadlift':['الرفعة الرومانية على ساق واحدة','الحوض يبقى موازياً للأرض، والساق الخلفية على خط الجذع'],
+'Pike Push Up':['ضغط بوضعية القمة','الحوض مرتفع، والرأس ينزل للأمام نحو الكفّين'],
+'Single Arm Dumbbell Press':['ضغط كتف بذراع واحدة','شدّ البطن والمؤخرة حتى لا يميل الجذع جانباً'],
+'Dumbbell Biceps Curl':['ثني بايسبس بالدمبل','المرفقان ملاصقان للجسم مع تدوير خفيف للمعصم في الأعلى'],
+'Concentration Curl':['ثني التركيز','المرفق مستند إلى داخل الفخذ، بلا تأرجح'],
+'Cross Body Hammer Curl':['ثني المطرقة المتقاطع','ارفع الدمبل نحو الكتف المقابل'],
+'Close Grip Push Up':['ضغط بقبضة ضيقة','اليدان بعرض الكتفين، والمرفقان للخلف بمحاذاة الجسم'],
+'Bench Dip':['غطس على كرسي','الظهر قريب من الكرسي، والنزول حتى 90° في المرفق'],
+'Dead Bug':['تمرين الحشرة الميتة','أسفل الظهر ملاصق للأرض، واليد والساق المتقابلتان تنزلان معاً'],
+'Mountain Climber':['متسلّق الجبل','الحوض منخفض وثابت، والركبتان تتبادلان بإيقاع'],
 }};
 T.es = {
 ui:{
@@ -1000,7 +1223,19 @@ ui:{
  androidSteps:['Toca el menú de tres puntos <b>⋮</b> en Chrome.','Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.','Confirma y el icono aparecerá junto a tus otras apps.'],
  desktopSteps:['Haz clic en el icono de instalación en la barra de direcciones.','O: menú del navegador → <b>Instalar</b>.'],
  dow:['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
- dowFull:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+ dowFull:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
+ placeTitle:'¿Dónde entrenas?', placeLead:'Esto decide de qué banco de ejercicios se arma el plan. Puedes cambiarlo cuando quieras desde el botón de arriba.',
+ gymT:'Gimnasio', gymD:'El banco completo de ejercicios, con barras, máquinas y poleas.', gymGear:'Barra · Máquinas · Poleas · Mancuernas',
+ homeT:'En casa', homeD:'Solo ejercicios con mancuernas, barra de dominadas y peso corporal.', homeGear:'Mancuernas · Barra de dominadas · Peso corporal',
+ backPlace:'Volver a dónde entrenas'
+},
+warmHome:{
+ chest:'2 series de flexiones suaves más círculos de hombro y brazo',
+ back:'20 s colgado de la barra y 2 series ligeras de remo con mancuerna',
+ legs:'2 series de sentadillas sin peso más apertura de cadera y tobillo',
+ shoulders:'Círculos de hombro y 2 series de elevaciones laterales ligeras',
+ biceps:'2 series ligeras de curl y extensiones sobre la cabeza',
+ core:'Gato-vaca, puente de glúteo y 30 s de plancha suave'
 },
 g:{chest:'Pecho',back:'Espalda',legs:'Piernas',shoulders:'Hombros',biceps:'Bíceps',triceps:'Tríceps',core:'Core'},
 sp:{
@@ -1081,7 +1316,29 @@ ex:{
 'Bicycle Crunch':['Crunch bicicleta','Codo a la rodilla contraria, despacio y con control'],
 'Russian Twist':['Giro ruso','La rotación sale del torso, no de los brazos'],
 'Ab Wheel Rollout':['Rueda abdominal','Pelvis metida durante todo el rodado, sin arquear la espalda'],
-'Hollow Body Hold':['Hollow body','Zona lumbar pegada al suelo durante toda la sujeción']
+'Hollow Body Hold':['Hollow body','Zona lumbar pegada al suelo durante toda la sujeción'],
+'Dumbbell Floor Press':['Press con mancuernas en el suelo','Los codos paran en el suelo: rango seguro de hombro incluso sin ayuda'],
+'Decline Push Up':['Flexiones con pies elevados','Cuanto más altos los pies, más carga se va al pecho superior'],
+'Dumbbell Pullover':['Pullover con mancuerna','Baja despacio por detrás de la cabeza hasta notar el estiramiento bajo la axila'],
+'Diamond Push Up':['Flexiones diamante','Pulgares e índices en contacto, codos pegados al cuerpo'],
+'Chin Up':['Dominadas supinas','Agarre a la anchura de hombros con las palmas hacia ti: aquí ayuda el bíceps'],
+'Two Arm Dumbbell Row':['Remo con dos mancuernas','Torso a 45°, tira hacia la cintura y no hacia el pecho'],
+'Inverted Row':['Remo invertido','Cuerpo en línea recta, el pecho llega a la barra'],
+'Dumbbell Deadlift':['Peso muerto con mancuernas','Mancuernas pegadas a las piernas, empuje desde los talones'],
+'Dumbbell Shrug':['Encogimientos con mancuernas','Sube recto sin rotar y aguanta un segundo'],
+'Goblet Squat':['Sentadilla goblet','Mancuerna pegada al pecho, torso erguido y bajada profunda'],
+'Dumbbell Step Up':['Subida al cajón con mancuernas','Empuja con el talón de la pierna de arriba, sin salto desde abajo'],
+'Glute Bridge':['Puente de glúteo','Empuja con los talones y aprieta el glúteo arriba, sin arquear'],
+'Single Leg Romanian Deadlift':['Peso muerto rumano a una pierna','La cadera queda paralela al suelo, la pierna de atrás en línea con el torso'],
+'Pike Push Up':['Flexiones en pica','Cadera alta, la cabeza baja hacia las manos'],
+'Single Arm Dumbbell Press':['Press de hombro a una mano','Aprieta abdomen y glúteos para que el torso no se incline'],
+'Dumbbell Biceps Curl':['Curl de bíceps con mancuernas','Codos pegados al cuerpo y un ligero giro de muñeca arriba'],
+'Concentration Curl':['Curl concentrado','Codo apoyado en la cara interna del muslo, sin impulso'],
+'Cross Body Hammer Curl':['Curl martillo cruzado','Lleva la mancuerna hacia el hombro contrario'],
+'Close Grip Push Up':['Flexiones agarre cerrado','Manos a la anchura de hombros, codos hacia atrás pegados al cuerpo'],
+'Bench Dip':['Fondos en banco','Espalda cerca del banco, baja hasta 90° de codo'],
+'Dead Bug':['Dead bug','Lumbar pegada al suelo, brazo y pierna contrarios bajan a la vez'],
+'Mountain Climber':['Escaladores','Cadera baja y estable, rodillas alternando con ritmo'],
 }};
 T.fr = {
 ui:{
@@ -1114,7 +1371,19 @@ ui:{
  androidSteps:['Ouvre le menu à trois points <b>⋮</b> dans Chrome.','Choisis <b>Installer l’application</b> ou <b>Ajouter à l’écran d’accueil</b>.','Confirme, et l’icône rejoint tes autres applications.'],
  desktopSteps:['Clique sur l’icône d’installation dans la barre d’adresse.','Ou : menu du navigateur → <b>Installer</b>.'],
  dow:['Di','Lu','Ma','Me','Je','Ve','Sa'],
- dowFull:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+ dowFull:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+ placeTitle:'Où t’entraînes-tu ?', placeLead:'Cela détermine dans quel répertoire d’exercices le plan est construit. Tu peux changer à tout moment depuis le bouton en haut de la page.',
+ gymT:'Salle de sport', gymD:'Le répertoire complet, avec barres, machines et poulies.', gymGear:'Barre · Machines · Poulies · Haltères',
+ homeT:'À la maison', homeD:'Uniquement des exercices avec haltères, barre de traction et poids du corps.', homeGear:'Haltères · Barre de traction · Poids du corps',
+ backPlace:'Retour au lieu d’entraînement'
+},
+warmHome:{
+ chest:'2 séries de pompes faciles plus des cercles d’épaules et de bras',
+ back:'20 s suspendu à la barre puis 2 séries légères de rowing haltère',
+ legs:'2 séries de squats au poids du corps plus ouverture des hanches et chevilles',
+ shoulders:'Cercles d’épaules et 2 séries d’élévations latérales légères',
+ biceps:'2 séries légères de curl et d’extensions au-dessus de la tête',
+ core:'Chat-vache, pont fessier et 30 s de gainage facile'
 },
 g:{chest:'Pectoraux',back:'Dos',legs:'Jambes',shoulders:'Épaules',biceps:'Biceps',triceps:'Triceps',core:'Gainage'},
 sp:{
@@ -1195,7 +1464,29 @@ ex:{
 'Bicycle Crunch':['Crunch bicyclette','Coude vers le genou opposé, lentement et sous contrôle'],
 'Russian Twist':['Russian twist','La rotation part du buste, pas des bras'],
 'Ab Wheel Rollout':['Roue abdominale','Bassin rétroversé pendant tout le déroulé, sans cambrer'],
-'Hollow Body Hold':['Hollow body','Bas du dos plaqué au sol pendant tout le maintien']
+'Hollow Body Hold':['Hollow body','Bas du dos plaqué au sol pendant tout le maintien'],
+'Dumbbell Floor Press':['Développé haltères au sol','Les coudes s’arrêtent au sol — amplitude sûre pour l’épaule, même sans pareur'],
+'Decline Push Up':['Pompes pieds surélevés','Plus les pieds sont hauts, plus la charge passe sur le haut des pectoraux'],
+'Dumbbell Pullover':['Pull-over haltère','Descends lentement derrière la tête jusqu’à sentir l’étirement sous l’aisselle'],
+'Diamond Push Up':['Pompes diamant','Pouces et index en contact, coudes serrés contre le corps'],
+'Chin Up':['Tractions supination','Prise largeur d’épaules paumes vers toi — le biceps aide ici'],
+'Two Arm Dumbbell Row':['Rowing deux haltères','Buste à 45°, tire vers la taille et non vers la poitrine'],
+'Inverted Row':['Rowing inversé','Corps aligné, la poitrine vient toucher la barre'],
+'Dumbbell Deadlift':['Soulevé de terre haltères','Haltères près des jambes, pousse dans les talons'],
+'Dumbbell Shrug':['Haussements d’épaules','Monte droit sans rotation, avec une pause d’une seconde'],
+'Goblet Squat':['Goblet squat','Haltère contre la poitrine, buste droit et descente profonde'],
+'Dumbbell Step Up':['Montées sur banc avec haltères','Pousse dans le talon de la jambe haute, sans impulsion du bas'],
+'Glute Bridge':['Pont fessier','Pousse dans les talons et serre les fessiers en haut, sans cambrer'],
+'Single Leg Romanian Deadlift':['Soulevé roumain unilatéral','Le bassin reste parallèle au sol, jambe arrière alignée avec le buste'],
+'Pike Push Up':['Pompes en pike','Bassin haut, la tête descend vers les mains'],
+'Single Arm Dumbbell Press':['Développé épaule à un bras','Gaine les abdos et les fessiers pour que le buste ne penche pas'],
+'Dumbbell Biceps Curl':['Curl biceps haltères','Coudes collés au corps et légère rotation du poignet en haut'],
+'Concentration Curl':['Curl concentré','Coude en appui sur l’intérieur de la cuisse, sans élan'],
+'Cross Body Hammer Curl':['Curl marteau croisé','Amène l’haltère vers l’épaule opposée'],
+'Close Grip Push Up':['Pompes prise serrée','Mains largeur d’épaules, coudes vers l’arrière le long du corps'],
+'Bench Dip':['Dips sur banc','Dos près du banc, descends jusqu’à 90° au coude'],
+'Dead Bug':['Dead bug','Bas du dos plaqué au sol, bras et jambe opposés descendent ensemble'],
+'Mountain Climber':['Mountain climbers','Bassin bas et stable, genoux qui alternent en rythme'],
 }};
 T.ru = {
 ui:{
@@ -1228,7 +1519,19 @@ ui:{
  androidSteps:['Откройте меню из трёх точек <b>⋮</b> в Chrome.','Выберите <b>Установить приложение</b> или <b>Добавить на главный экран</b>.','Подтвердите — значок появится рядом с другими приложениями.'],
  desktopSteps:['Нажмите значок установки в адресной строке браузера.','Или: меню браузера → <b>Установить</b>.'],
  dow:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
- dowFull:['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота']
+ dowFull:['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'],
+ placeTitle:'Где вы тренируетесь?', placeLead:'От этого зависит, из какого набора упражнений собирается план. Сменить можно в любой момент кнопкой вверху страницы.',
+ gymT:'Зал', gymD:'Полный набор упражнений — со штангой, тренажёрами и блоками.', gymGear:'Штанга · Тренажёры · Блоки · Гантели',
+ homeT:'Дома', homeD:'Только упражнения с гантелями, турником и весом тела.', homeGear:'Гантели · Турник · Вес тела',
+ backPlace:'Назад к месту тренировок'
+},
+warmHome:{
+ chest:'2 подхода лёгких отжиманий плюс круги плечами и руками',
+ back:'20 сек вис на турнике, затем 2 лёгких подхода тяги гантели',
+ legs:'2 подхода приседаний с весом тела плюс раскрытие таза и голеностопа',
+ shoulders:'Круги плечами и 2 подхода лёгких махов в стороны',
+ biceps:'2 лёгких подхода сгибаний и разгибаний из-за головы',
+ core:'Кошка-корова, ягодичный мостик и 30 сек лёгкой планки'
 },
 g:{chest:'Грудь',back:'Спина',legs:'Ноги',shoulders:'Плечи',biceps:'Бицепс',triceps:'Трицепс',core:'Кор'},
 sp:{
@@ -1309,13 +1612,35 @@ ex:{
 'Bicycle Crunch':['Скручивания «велосипед»','Локоть к противоположному колену, медленно и подконтрольно'],
 'Russian Twist':['Русские скручивания','Вращение идёт от корпуса, а не от рук'],
 'Ab Wheel Rollout':['Ролик для пресса','Таз подкручен на всём прокате, без прогиба в спине'],
-'Hollow Body Hold':['Удержание «лодочки»','Поясница прижата к полу всё время удержания']
+'Hollow Body Hold':['Удержание «лодочки»','Поясница прижата к полу всё время удержания'],
+'Dumbbell Floor Press':['Жим гантелей с пола','Локти упираются в пол — безопасная амплитуда для плеча даже без страхующего'],
+'Decline Push Up':['Отжимания с ногами на возвышении','Чем выше ноги, тем больше нагрузки уходит в верх груди'],
+'Dumbbell Pullover':['Пулловер с гантелью','Медленно опускайте за голову до растяжения под мышкой'],
+'Diamond Push Up':['Алмазные отжимания','Большие и указательные пальцы вместе, локти прижаты к корпусу'],
+'Chin Up':['Подтягивания обратным хватом','Хват на ширине плеч ладонями к себе — здесь помогает бицепс'],
+'Two Arm Dumbbell Row':['Тяга двух гантелей в наклоне','Корпус под 45°, тяните к поясу, а не к груди'],
+'Inverted Row':['Горизонтальные подтягивания','Тело прямой линией, грудь доходит до перекладины'],
+'Dumbbell Deadlift':['Становая тяга с гантелями','Гантели близко к ногам, толчок через пятки'],
+'Dumbbell Shrug':['Шраги с гантелями','Поднимайте строго вверх без вращения, с паузой на секунду'],
+'Goblet Squat':['Гоблет-приседания','Гантель у груди, корпус прямой и глубокий присед'],
+'Dumbbell Step Up':['Зашагивания с гантелями','Толкайтесь пяткой верхней ноги, без подпрыгивания снизу'],
+'Glute Bridge':['Ягодичный мостик','Толчок через пятки и сжатие ягодиц вверху, без прогиба в спине'],
+'Single Leg Romanian Deadlift':['Румынская тяга на одной ноге','Таз остаётся параллельно полу, задняя нога на линии корпуса'],
+'Pike Push Up':['Отжимания «домиком»','Таз высоко, голова уходит вперёд к ладоням'],
+'Single Arm Dumbbell Press':['Жим гантели одной рукой','Напрягите пресс и ягодицы, чтобы корпус не заваливался вбок'],
+'Dumbbell Biceps Curl':['Сгибания с гантелями на бицепс','Локти прижаты к корпусу, лёгкий разворот кисти вверху'],
+'Concentration Curl':['Концентрированные сгибания','Локоть упирается во внутреннюю часть бедра, без раскачки'],
+'Cross Body Hammer Curl':['Перекрёстные молотковые сгибания','Ведите гантель к противоположному плечу'],
+'Close Grip Push Up':['Отжимания узким хватом','Руки на ширине плеч, локти уходят назад вдоль корпуса'],
+'Bench Dip':['Обратные отжимания от скамьи','Спина близко к скамье, опускайтесь до 90° в локте'],
+'Dead Bug':['Упражнение «мёртвый жук»','Поясница прижата к полу, противоположные рука и нога опускаются вместе'],
+'Mountain Climber':['«Скалолаз»','Таз низко и стабильно, колени чередуются в ритме'],
 }};
 /*LANG-DATA*/
 
 /* ================== מצב ================== */
 const KEY='iron-plan-v1';
-const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},screen:'lang',lang:null};
+const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},screen:'lang',lang:null,place:null};
 let state = load();
 
 function load(){
@@ -1370,7 +1695,24 @@ function applyLang(){
   });
   document.getElementById('week').setAttribute('aria-label',u.weekAria);
   document.getElementById('langChipLabel').textContent=def.native;
+  document.getElementById('placeChipLabel').textContent = state.place==='home' ? u.homeT : u.gymT;
   renderLangList();
+  renderPlaceList();
+}
+
+function renderPlaceList(){
+  document.getElementById('optGym').setAttribute('aria-pressed', String(state.place==='gym'));
+  document.getElementById('optHome').setAttribute('aria-pressed', String(state.place==='home'));
+}
+
+/* החלפת מקום האימון מחליפה את מאגר התרגילים, ולכן הסימונים
+   וההחלפות הישנות כבר לא מתאימות לתוכנית החדשה */
+function setPlace(p){
+  if(state.place!==p){
+    state.place=p; state.done={}; state.swaps={};
+  }
+  save(); applyLang();
+  go(state.screen==='place' ? 'intro' : state.screen);
 }
 
 function renderLangList(){
@@ -1385,21 +1727,24 @@ function renderLangList(){
     b.innerHTML=`<span class="lang-native">${l.native}</span><span class="lang-en">${l.en}</span>`;
     b.addEventListener('click',()=>{
       state.lang=l.code; save(); applyLang();
-      go(state.screen==='lang' ? 'intro' : state.screen);
+      go(state.screen==='lang' ? (state.place ? 'intro' : 'place') : state.screen);
     });
     li.appendChild(b); list.appendChild(li);
   });
 }
 
 /* בונה את רשימת התרגילים ליום מסוים */
+/* מאגר התרגילים לפי מקום האימון */
+function bank(g){ return state.place==='home' ? EX_HOME[g] : EX[g]; }
+
 function buildDay(dayIdx){
   const def = SPLITS[state.freq].days[dayIdx];
   const out = [];
   def.recipe.forEach(([g,n])=>{
-    const order = shuffled(EX[g], `${state.seed}|${state.freq}|${dayIdx}|${g}`);
+    const order = shuffled(bank(g), `${state.seed}|${state.place}|${state.freq}|${dayIdx}|${g}`);
     const picks = order.slice(0,n).map(e=>({...e, g}));
     for(let i=0;i<picks.length;i++){
-      const off = state.swaps[`${state.freq}-${dayIdx}-${out.length+i}`]||0;
+      const off = state.swaps[`${state.place}-${state.freq}-${dayIdx}-${out.length+i}`]||0;
       if(!off) continue;
       const used = new Set(picks.filter((_,j)=>j!==i).map(x=>x.en));
       const cand = order.filter(x=>!used.has(x.en));
@@ -1420,11 +1765,11 @@ function slotMap(){
   return m;
 }
 function doneSet(dayIdx){
-  const k=`${state.freq}-${dayIdx}`;
+  const k=`${state.place}-${state.freq}-${dayIdx}`;
   return new Set(state.done[k]||[]);
 }
 function toggleDone(dayIdx,en){
-  const k=`${state.freq}-${dayIdx}`;
+  const k=`${state.place}-${state.freq}-${dayIdx}`;
   const s=new Set(state.done[k]||[]);
   s.has(en)?s.delete(en):s.add(en);
   state.done[k]=[...s];
@@ -1482,6 +1827,10 @@ function go(screen,push){
 document.getElementById('btnStart').addEventListener('click',()=>go('setup'));
 document.getElementById('btnToLang').addEventListener('click',()=>go('lang'));
 document.getElementById('btnLangChip').addEventListener('click',()=>go('lang'));
+document.getElementById('btnToPlace').addEventListener('click',()=>go('place'));
+document.getElementById('btnPlaceChip').addEventListener('click',()=>go('place'));
+document.getElementById('optGym').addEventListener('click',()=>setPlace('gym'));
+document.getElementById('optHome').addEventListener('click',()=>setPlace('home'));
 document.getElementById('btnIntro').addEventListener('click',()=>go('intro'));
 document.getElementById('btnToSetup').addEventListener('click',()=>go('setup'));
 document.getElementById('btnBuild').addEventListener('click',()=>{
@@ -1511,7 +1860,8 @@ function renderPlan(){
   const map=slotMap();
   const plan=wholePlan();
 
-  document.getElementById('brandSub').textContent=fill(u.freqSub,{n:state.freq,split:meta.name});
+  document.getElementById('brandSub').textContent=
+    fill(u.freqSub,{n:state.freq,split:meta.name})+' · '+(state.place==='home'?u.homeT:u.gymT);
 
   /* רצועת השבוע */
   weekEl.innerHTML='';
@@ -1565,7 +1915,7 @@ function renderPlan(){
           <div><dt>${u.mDone}</dt><dd>${day.ex.filter(e=>d.has(e.en)).length}/${day.ex.length}</dd></div>
         </dl>
       </div>
-      <div class="warm"><b>${u.warmup}</b><span>${dayMeta.warm}</span></div>
+      <div class="warm"><b>${u.warmup}</b><span>${state.place==='home'?L().warmHome[day.def.color]:dayMeta.warm}</span></div>
       <ul class="ex-list">${day.ex.map((e,i)=>{
         const nm=exName(e.en);
         return `
@@ -1631,13 +1981,16 @@ function renderPlan(){
 
 function route(){
   if(!state.lang) state.screen='lang';
+  else if(!state.place && state.screen!=='lang') state.screen='place';
   const s=state.screen;
   document.getElementById('lang').hidden     = s!=='lang';
+  document.getElementById('place').hidden    = s!=='place';
   document.getElementById('intro').hidden    = s!=='intro';
   document.getElementById('setup').hidden    = s!=='setup';
   document.getElementById('planView').hidden = s!=='plan';
   document.getElementById('planActions').hidden = s!=='plan';
   document.getElementById('btnLangChip').hidden = s==='lang';
+  document.getElementById('btnPlaceChip').hidden = s==='lang' || s==='place' || !state.place;
   if(s==='plan'){
     renderPlan();
   }else{
