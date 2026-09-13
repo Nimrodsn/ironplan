@@ -146,6 +146,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   color:var(--ink-2);font-size:13.5px;font-weight:600;
 }
 .backlink:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+#planView .backlink{margin:0 0 2px}
 .freq-list{display:flex;flex-direction:column;gap:10px;margin:26px 0 0;padding:0;list-style:none}
 .freq{
   display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
@@ -394,7 +395,6 @@ body{
       <span id="planActions" style="display:contents" hidden>
         <button class="btn" id="btnShuffle">החלף תרגילים</button>
         <button class="btn" id="btnReset">אפס סימונים</button>
-        <button class="btn" id="btnBack">שנה תדירות</button>
       </span>
     </div>
   </header>
@@ -455,6 +455,7 @@ body{
 
   <!-- ===== מסך התוכנית ===== -->
   <section id="planView" hidden>
+    <button class="backlink" id="btnToSetup" type="button">→ חזרה לבחירת התדירות</button>
     <nav class="week" id="week" aria-label="ימי השבוע"></nav>
     <div class="card" id="dayCard"></div>
 
@@ -735,18 +736,33 @@ function renderSetup(){
   ).join('') + `<span class="preview-day" style="--pc:var(--line-strong)"><b></b>מנוחה<span>${7-setupPick} ימים</span></span>`;
 }
 
-document.getElementById('btnStart').addEventListener('click',()=>{
-  state.seenIntro=true; save(); route();
-});
-document.getElementById('btnIntro').addEventListener('click',()=>{
-  state.seenIntro=false; save(); route();
-});
+/* מעבר בין המסכים. push=false כשהמעבר מגיע מכפתור החזרה של הדפדפן,
+   כדי לא לדחוף עוד רשומה להיסטוריה על כל חזרה. */
+function go(screen,push){
+  if(screen==='intro'){
+    state.started=false; state.seenIntro=false;
+  }else if(screen==='setup'){
+    state.started=false; state.seenIntro=true;
+    setupPick=state.freq; renderSetup();
+  }else{
+    state.started=true; state.seenIntro=true;
+  }
+  save();
+  if(push!==false){ try{ history.pushState({screen:screen},''); }catch(e){} }
+  route();
+}
+
+document.getElementById('btnStart').addEventListener('click',()=>go('setup'));
+document.getElementById('btnIntro').addEventListener('click',()=>go('intro'));
+document.getElementById('btnToSetup').addEventListener('click',()=>go('setup'));
 document.getElementById('btnBuild').addEventListener('click',()=>{
   if(setupPick!==state.freq){ state.sel=SPLITS[setupPick].slots[0]; }
-  state.freq=setupPick; state.started=true; save(); route();
+  state.freq=setupPick;
+  go('plan');
 });
-document.getElementById('btnBack').addEventListener('click',()=>{
-  setupPick=state.freq; state.started=false; save(); renderSetup(); route();
+
+window.addEventListener('popstate',(e)=>{
+  go((e.state&&e.state.screen)||'intro', false);
 });
 document.getElementById('btnShuffle').addEventListener('click',()=>{
   state.seed++; state.swaps={}; state.done={}; save(); renderPlan();
@@ -897,6 +913,9 @@ function route(){
 
 renderSetup();
 route();
+try{
+  history.replaceState({screen: state.started ? 'plan' : (state.seenIntro ? 'setup' : 'intro')},'');
+}catch(e){}
 
 /* ================== התקנה כאפליקציה ================== */
 const btnInstall=document.getElementById('btnInstall');
