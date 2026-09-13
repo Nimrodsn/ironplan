@@ -132,7 +132,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 .setup-lead{max-width:60ch}
 .setup-lead h2{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:.95;margin:0 0 6px;text-wrap:balance}
 .setup-lead p{margin:0;color:var(--ink-2);font-size:15px}
-.freq-list{display:flex;flex-direction:column;gap:10px;margin:26px 0 0;padding:0;list-style:none}
+.how{
+  list-style:none;margin:28px 0 0;padding:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+}
+.how li{border-top:2px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:3px}
+.how-n{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.85;color:var(--ink-3)}
+.how-t{font-size:15.5px;font-weight:700}
+.how-d{color:var(--ink-2);font-size:13.5px}
+.pick-lead{margin-top:34px;padding-top:24px;border-top:1px solid var(--line);max-width:60ch}
+.pick-lead h3{font-family:var(--f-display);font-weight:700;font-size:32px;line-height:.95;margin:0 0 6px;text-wrap:balance}
+.pick-lead p{margin:0;color:var(--ink-2);font-size:15px}
+.freq-list{display:flex;flex-direction:column;gap:10px;margin:18px 0 0;padding:0;list-style:none}
 .freq{
   display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
   width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);
@@ -279,6 +290,9 @@ footer.note{margin-top:28px;color:var(--ink-3);font-size:12.5px;max-width:70ch}
   .app{padding:20px 14px 48px}
   .brand h1{font-size:42px}
   .setup-lead h2{font-size:32px}
+  .how{grid-template-columns:1fr;gap:16px}
+  .pick-lead{margin-top:28px;padding-top:20px}
+  .pick-lead h3{font-size:26px}
   .freq{grid-template-columns:auto 1fr;gap:12px}
   .freq-dots{display:none}
   .week{grid-template-columns:repeat(7,1fr);gap:3px}
@@ -394,8 +408,30 @@ body{
   <!-- ===== מסך בחירה ===== -->
   <section class="setup" id="setup">
     <div class="setup-lead">
-      <h2>כמה אימונים בשבוע?</h2>
-      <p>כל אימון מתמקד באזור אחד שלם בגוף — ככל שיש יותר ימים, הפיצול מדויק יותר וכל שריר מקבל אימון נפרד.</p>
+      <h2>איך זה עובד</h2>
+      <p>אתה אומר כמה פעמים בשבוע אתה מגיע לחדר כושר, והאפליקציה בונה את השבוע הקרוב — אילו אימונים, באילו ימים, ומה בדיוק עושים בכל אחד מהם.</p>
+    </div>
+    <ol class="how">
+      <li>
+        <span class="how-n">1</span>
+        <span class="how-t">בוחר תדירות</span>
+        <span class="how-d">בין 2 ל-6 אימונים בשבוע. זה הקלט היחיד שנדרש ממך.</span>
+      </li>
+      <li>
+        <span class="how-n">2</span>
+        <span class="how-t">מקבל שבוע מסודר</span>
+        <span class="how-d">כל אימון מתמקד באזור אחד שלם בגוף, וימי המנוחה מפוזרים בין האימונים.</span>
+      </li>
+      <li>
+        <span class="how-n">3</span>
+        <span class="how-t">מתאמן לפי הכרטיס</span>
+        <span class="how-d">ליד כל תרגיל: כמה סטים וחזרות, כמה זמן לנוח, דגש טכני אחד, וסרטון שמראה איך מבצעים.</span>
+      </li>
+    </ol>
+
+    <div class="pick-lead">
+      <h3>כמה אימונים בשבוע?</h3>
+      <p>ככל שיש יותר ימים, הפיצול מדויק יותר וכל שריר מקבל אימון נפרד משלו.</p>
     </div>
     <ul class="freq-list" id="freqList"></ul>
     <div class="setup-preview">
