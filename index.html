@@ -128,7 +128,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2.5px solid var(--day);outline-offset:2px;border-radius:4px}
 
 /* ---------- setup ---------- */
-.setup{padding-top:34px}
+.setup,.intro{padding-top:34px}
+.intro .setup-lead h2{font-size:48px}
 .setup-lead{max-width:60ch}
 .setup-lead h2{font-family:var(--f-display);font-weight:700;font-size:40px;line-height:.95;margin:0 0 6px;text-wrap:balance}
 .setup-lead p{margin:0;color:var(--ink-2);font-size:15px}
@@ -140,10 +141,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 .how-n{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:.85;color:var(--ink-3)}
 .how-t{font-size:15.5px;font-weight:700}
 .how-d{color:var(--ink-2);font-size:13.5px}
-.pick-lead{margin-top:34px;padding-top:24px;border-top:1px solid var(--line);max-width:60ch}
-.pick-lead h3{font-family:var(--f-display);font-weight:700;font-size:32px;line-height:.95;margin:0 0 6px;text-wrap:balance}
-.pick-lead p{margin:0;color:var(--ink-2);font-size:15px}
-.freq-list{display:flex;flex-direction:column;gap:10px;margin:18px 0 0;padding:0;list-style:none}
+.backlink{
+  background:none;border:none;padding:0;margin:0 0 16px;
+  color:var(--ink-2);font-size:13.5px;font-weight:600;
+}
+.backlink:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+.freq-list{display:flex;flex-direction:column;gap:10px;margin:26px 0 0;padding:0;list-style:none}
 .freq{
   display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
   width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);
@@ -290,9 +293,8 @@ footer.note{margin-top:28px;color:var(--ink-3);font-size:12.5px;max-width:70ch}
   .app{padding:20px 14px 48px}
   .brand h1{font-size:42px}
   .setup-lead h2{font-size:32px}
+  .intro .setup-lead h2{font-size:36px}
   .how{grid-template-columns:1fr;gap:16px}
-  .pick-lead{margin-top:28px;padding-top:20px}
-  .pick-lead h3{font-size:26px}
   .freq{grid-template-columns:auto 1fr;gap:12px}
   .freq-dots{display:none}
   .week{grid-template-columns:repeat(7,1fr);gap:3px}
@@ -406,7 +408,7 @@ body{
   </div>
 
   <!-- ===== מסך בחירה ===== -->
-  <section class="setup" id="setup">
+  <section class="intro" id="intro">
     <div class="setup-lead">
       <h2>איך זה עובד</h2>
       <p>אתה אומר כמה פעמים בשבוע אתה מגיע לחדר כושר, והאפליקציה בונה את השבוע הקרוב — אילו אימונים, באילו ימים, ומה בדיוק עושים בכל אחד מהם.</p>
@@ -428,9 +430,16 @@ body{
         <span class="how-d">ליד כל תרגיל: כמה סטים וחזרות, כמה זמן לנוח, דגש טכני אחד, וסרטון שמראה איך מבצעים.</span>
       </li>
     </ol>
+    <div class="setup-cta">
+      <button class="btn btn-solid" id="btnStart">בוא נתחיל</button>
+      <p class="fineprint">שלב הבחירה לוקח שנייה, ואפשר לשנות אותו בכל רגע.</p>
+    </div>
+  </section>
 
-    <div class="pick-lead">
-      <h3>כמה אימונים בשבוע?</h3>
+  <section class="setup" id="setup" hidden>
+    <button class="backlink" id="btnIntro" type="button">→ חזרה להסבר</button>
+    <div class="setup-lead">
+      <h2>כמה אימונים בשבוע?</h2>
       <p>ככל שיש יותר ימים, הפיצול מדויק יותר וכל שריר מקבל אימון נפרד משלו.</p>
     </div>
     <ul class="freq-list" id="freqList"></ul>
@@ -623,7 +632,7 @@ const SPLITS = {
 
 /* ================== מצב ================== */
 const KEY='iron-plan-v1';
-const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},started:false};
+const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},started:false,seenIntro:false};
 let state = load();
 
 function load(){
@@ -726,6 +735,12 @@ function renderSetup(){
   ).join('') + `<span class="preview-day" style="--pc:var(--line-strong)"><b></b>מנוחה<span>${7-setupPick} ימים</span></span>`;
 }
 
+document.getElementById('btnStart').addEventListener('click',()=>{
+  state.seenIntro=true; save(); route();
+});
+document.getElementById('btnIntro').addEventListener('click',()=>{
+  state.seenIntro=false; save(); route();
+});
 document.getElementById('btnBuild').addEventListener('click',()=>{
   if(setupPick!==state.freq){ state.sel=SPLITS[setupPick].slots[0]; }
   state.freq=setupPick; state.started=true; save(); route();
@@ -865,14 +880,14 @@ function renderPlan(){
 }
 
 function route(){
-  const on=state.started;
-  document.getElementById('setup').hidden=on;
-  document.getElementById('planView').hidden=!on;
-  document.getElementById('planActions').hidden=!on;
-  if(on){
-    if(slotMap()[state.sel]===undefined && !SPLITS[state.freq].slots.includes(state.sel)){
-      /* שומר על היום שנבחר גם אם הוא יום מנוחה */
-    }
+  const showPlan  = state.started;
+  const showIntro = !state.started && !state.seenIntro;
+  const showSetup = !state.started && state.seenIntro;
+  document.getElementById('intro').hidden=!showIntro;
+  document.getElementById('setup').hidden=!showSetup;
+  document.getElementById('planView').hidden=!showPlan;
+  document.getElementById('planActions').hidden=!showPlan;
+  if(showPlan){
     renderPlan();
   }else{
     document.getElementById('brandSub').textContent='בונה לך שבוע אימונים לפי כמה פעמים אתה מתאמן';
