@@ -14,9 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="תוכנית ברזל">
 <link rel="icon" href="icon-192.png" sizes="192x192">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!--HEAD-REST-START-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Karantina:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Karantina:wght@400;700&family=IBM+Plex+Mono:wght@500;600&family=Cairo:wght@400;600;800&family=Noto+Sans:wght@400;600;700&display=swap">
 
 <style>
 :root{
@@ -40,8 +41,8 @@
 
   --day:var(--c-chest);
 
-  --f-display:"Karantina","Assistant",system-ui,sans-serif;
-  --f-body:"Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-display:"Karantina","Cairo","Noto Sans","Assistant",system-ui,sans-serif;
+  --f-body:"Assistant","Cairo","Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
 
   --r:10px;
@@ -127,6 +128,29 @@ button{font:inherit;color:inherit;cursor:pointer}
 .btn-solid:hover{opacity:.88;border-color:var(--btn-bg)}
 :focus-visible{outline:2.5px solid var(--day);outline-offset:2px;border-radius:4px}
 
+/* ---------- language ---------- */
+.lang{padding-top:34px}
+.lang-list{
+  list-style:none;margin:26px 0 0;padding:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+}
+.lang-opt{
+  width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:2px;
+  transition:border-color .15s,box-shadow .15s;
+}
+.lang-opt:hover{border-color:var(--line-strong)}
+.lang-opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:var(--shadow)}
+.lang-native{font-size:19px;font-weight:700;line-height:1.2}
+.lang-en{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.lang-chip{
+  border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;
+  padding:8px 12px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:6px;
+  transition:border-color .15s;
+}
+.lang-chip:hover{border-color:var(--ink-2)}
+.lang-chip svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none;flex:none}
+
 /* ---------- setup ---------- */
 .setup,.intro{padding-top:34px}
 .intro .setup-lead h2{font-size:48px}
@@ -145,6 +169,8 @@ button{font:inherit;color:inherit;cursor:pointer}
   background:none;border:none;padding:0;margin:0 0 16px;
   color:var(--ink-2);font-size:13.5px;font-weight:600;
 }
+.backlink::before{content:"→ "}
+.app[dir="ltr"] .backlink::before{content:"← "}
 .backlink:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 #planView .backlink{margin:0 0 2px}
 .freq-list{display:flex;flex-direction:column;gap:10px;margin:26px 0 0;padding:0;list-style:none}
@@ -285,7 +311,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bar{display:grid;grid-template-columns:74px 1fr 62px;align-items:center;gap:12px;font-size:13.5px}
 .bar .bname{font-weight:600}
 .bar .track{height:16px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--line)}
-.bar .fill{height:100%;background:var(--bc);border-radius:2px 0 0 2px;transition:width .3s}
+.bar .fill{height:100%;background:var(--bc);border-radius:2px;transition:width .3s}
 .bar .bval{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 
 footer.note{margin-top:28px;color:var(--ink-3);font-size:12.5px;max-width:70ch}
@@ -296,6 +322,9 @@ footer.note{margin-top:28px;color:var(--ink-3);font-size:12.5px;max-width:70ch}
   .setup-lead h2{font-size:32px}
   .intro .setup-lead h2{font-size:36px}
   .how{grid-template-columns:1fr;gap:16px}
+  .lang-list{grid-template-columns:repeat(2,1fr);gap:8px}
+  .lang-opt{padding:12px 13px}
+  .lang-native{font-size:17px}
   .freq{grid-template-columns:auto 1fr;gap:12px}
   .freq-dots{display:none}
   .week{grid-template-columns:repeat(7,1fr);gap:3px}
@@ -383,92 +412,91 @@ body{
         <rect x="25" y="10" width="4" height="14" rx="1.2" fill="currentColor"/>
       </svg>
       <div>
-        <h1>תוכנית ברזל</h1>
-        <p id="brandSub">בונה לך שבוע אימונים לפי כמה פעמים אתה מתאמן</p>
+        <h1 data-i18n="brand"></h1>
+        <p id="brandSub"></p>
       </div>
     </div>
     <div class="masthead-actions">
+      <button class="lang-chip" id="btnLangChip" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13M8 1.5c1.8 2 2.7 4.1 2.7 6.5S9.8 12.5 8 14.5C6.2 12.5 5.3 10.4 5.3 8S6.2 3.5 8 1.5z"/></svg>
+        <span id="langChipLabel"></span>
+      </button>
       <button class="install" id="btnInstall" type="button">
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v9M4.5 7L8 10.5 11.5 7M2 13.5h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        התקן במסך הבית
+        <span data-i18n="install"></span>
       </button>
       <span id="planActions" style="display:contents" hidden>
-        <button class="btn" id="btnShuffle">החלף תרגילים</button>
-        <button class="btn" id="btnReset">אפס סימונים</button>
+        <button class="btn" id="btnShuffle" data-i18n="shuffle"></button>
+        <button class="btn" id="btnReset" data-i18n="resetBtn"></button>
       </span>
     </div>
   </header>
 
+  <!-- ===== בחירת שפה ===== -->
+  <section class="lang" id="lang">
+    <div class="setup-lead">
+      <h2 data-i18n="langTitle"></h2>
+      <p data-i18n="langLead"></p>
+    </div>
+    <ul class="lang-list" id="langList"></ul>
+  </section>
+
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="sheet-inner">
-      <h3 id="sheetTitle">להוספה למסך הבית</h3>
+      <h3 id="sheetTitle" data-i18n="sheetTitle"></h3>
       <ol id="sheetSteps"></ol>
-      <button class="btn btn-solid" id="sheetClose" type="button">הבנתי</button>
+      <button class="btn btn-solid" id="sheetClose" type="button" data-i18n="sheetOk"></button>
     </div>
   </div>
 
   <!-- ===== מסך בחירה ===== -->
-  <section class="intro" id="intro">
+  <section class="intro" id="intro" hidden>
+    <button class="backlink" id="btnToLang" type="button" data-i18n="backLang"></button>
     <div class="setup-lead">
-      <h2>איך זה עובד</h2>
-      <p>אתה אומר כמה פעמים בשבוע אתה מגיע לחדר כושר, והאפליקציה בונה את השבוע הקרוב — אילו אימונים, באילו ימים, ומה בדיוק עושים בכל אחד מהם.</p>
+      <h2 data-i18n="howTitle"></h2>
+      <p data-i18n="howLead"></p>
     </div>
     <ol class="how">
-      <li>
-        <span class="how-n">1</span>
-        <span class="how-t">בוחר תדירות</span>
-        <span class="how-d">בין 2 ל-6 אימונים בשבוע. זה הקלט היחיד שנדרש ממך.</span>
-      </li>
-      <li>
-        <span class="how-n">2</span>
-        <span class="how-t">מקבל שבוע מסודר</span>
-        <span class="how-d">כל אימון מתמקד באזור אחד שלם בגוף, וימי המנוחה מפוזרים בין האימונים.</span>
-      </li>
-      <li>
-        <span class="how-n">3</span>
-        <span class="how-t">מתאמן לפי הכרטיס</span>
-        <span class="how-d">ליד כל תרגיל: כמה סטים וחזרות, כמה זמן לנוח, דגש טכני אחד, וסרטון שמראה איך מבצעים.</span>
-      </li>
+      <li><span class="how-n">1</span><span class="how-t" data-i18n="s1t"></span><span class="how-d" data-i18n="s1d"></span></li>
+      <li><span class="how-n">2</span><span class="how-t" data-i18n="s2t"></span><span class="how-d" data-i18n="s2d"></span></li>
+      <li><span class="how-n">3</span><span class="how-t" data-i18n="s3t"></span><span class="how-d" data-i18n="s3d"></span></li>
     </ol>
     <div class="setup-cta">
-      <button class="btn btn-solid" id="btnStart">בוא נתחיל</button>
-      <p class="fineprint">שלב הבחירה לוקח שנייה, ואפשר לשנות אותו בכל רגע.</p>
+      <button class="btn btn-solid" id="btnStart" data-i18n="start"></button>
+      <p class="fineprint" data-i18n="startFine"></p>
     </div>
   </section>
 
   <section class="setup" id="setup" hidden>
-    <button class="backlink" id="btnIntro" type="button">→ חזרה להסבר</button>
+    <button class="backlink" id="btnIntro" type="button" data-i18n="backIntro"></button>
     <div class="setup-lead">
-      <h2>כמה אימונים בשבוע?</h2>
-      <p>ככל שיש יותר ימים, הפיצול מדויק יותר וכל שריר מקבל אימון נפרד משלו.</p>
+      <h2 data-i18n="pickTitle"></h2>
+      <p data-i18n="pickLead"></p>
     </div>
     <ul class="freq-list" id="freqList"></ul>
     <div class="setup-preview">
-      <h3>השבוע שייבנה</h3>
+      <h3 data-i18n="weekPreview"></h3>
       <div class="preview-days" id="preview"></div>
     </div>
     <div class="setup-cta">
-      <button class="btn btn-solid" id="btnBuild">בנה את התוכנית</button>
-      <p class="fineprint">אפשר להחליף תרגילים ולשנות תדירות בכל רגע. הסימונים נשמרים בדפדפן שלך.</p>
+      <button class="btn btn-solid" id="btnBuild" data-i18n="build"></button>
+      <p class="fineprint" data-i18n="buildFine"></p>
     </div>
   </section>
 
   <!-- ===== מסך התוכנית ===== -->
   <section id="planView" hidden>
-    <button class="backlink" id="btnToSetup" type="button">→ חזרה לבחירת התדירות</button>
-    <nav class="week" id="week" aria-label="ימי השבוע"></nav>
+    <button class="backlink" id="btnToSetup" type="button" data-i18n="backSetup"></button>
+    <nav class="week" id="week"></nav>
     <div class="card" id="dayCard"></div>
 
     <section class="volume">
-      <h3>נפח שבועי</h3>
-      <p>סך הסטים לכל קבוצת שריר בשבוע. 10–20 סטים לשריר בשבוע הוא הטווח שרוב תוכניות ההיפרטרופיה עובדות בו.</p>
+      <h3 data-i18n="volTitle"></h3>
+      <p data-i18n="volLead"></p>
       <div class="bars" id="bars"></div>
     </section>
 
-    <footer class="note">
-      טווחי החזרות הם נקודת פתיחה — בחר משקל שבו החזרות האחרונות קשות אבל הטכניקה נשארת נקייה, והוסף משקל או חזרה כשהסט מרגיש קל.
-      סרטוני ההדגמה נפתחים בחיפוש יוטיוב לתרגיל באנגלית, בלשונית חדשה.
-    </footer>
+    <footer class="note" data-i18n="note"></footer>
   </section>
 </div>
 
@@ -476,164 +504,818 @@ body{
 document.documentElement.setAttribute('dir','rtl');
 document.documentElement.setAttribute('lang','he');
 
-/* ================== נתונים ================== */
+/* ================== נתונים ==================
+   כל הטקסט חי ב-T (טבלת התרגומים). כאן נשאר רק המבנה:
+   מזהי תרגילים באנגלית, סטים, חזרות, מנוחה וצבעי קבוצות. */
 const G = {
-  chest:    {he:'חזה',     c:'var(--c-chest)'},
-  back:     {he:'גב',      c:'var(--c-back)'},
-  legs:     {he:'רגליים',  c:'var(--c-legs)'},
-  shoulders:{he:'כתפיים',  c:'var(--c-shoulders)'},
-  biceps:   {he:'ביצפס',   c:'var(--c-arms)'},
-  triceps:  {he:'טריצפס',  c:'var(--c-arms)'},
-  core:     {he:'ליבה',    c:'var(--c-core)'}
+  chest:'var(--c-chest)', back:'var(--c-back)', legs:'var(--c-legs)',
+  shoulders:'var(--c-shoulders)', biceps:'var(--c-arms)',
+  triceps:'var(--c-arms)', core:'var(--c-core)'
 };
 
 const EX = {
   chest:[
-    {he:'לחיצת חזה במוט',            en:'Barbell Bench Press',      s:4,r:'6-8',   t:120, cue:'שכמות נעולות אחורה, המוט יורד לגובה הפטמות ונוגע קלות'},
-    {he:'לחיצת חזה בשיפוע עם משקולות',en:'Incline Dumbbell Press',  s:3,r:'8-10',  t:90,  cue:'שיפוע 30°, לא לנעול מרפקים בסוף התנועה'},
-    {he:'לחיצת חזה במכונה',           en:'Chest Press Machine',      s:3,r:'10-12', t:75,  cue:'הידיות בגובה אמצע החזה, דחיפה מבוקרת בלי תנופה'},
-    {he:'פתיחות בפולי (קרוסאובר)',    en:'Cable Crossover',          s:3,r:'12-15', t:60,  cue:'המרפק כפוף קלות וקבוע — התנועה מגיעה רק מהכתף'},
-    {he:'פתיחות במכונת פק־דק',        en:'Pec Deck Fly',             s:3,r:'12-15', t:60,  cue:'עצירה של שנייה בכיווץ, בלי להרים כתפיים לאוזניים'},
-    {he:'שכיבות סמיכה',               en:'Push Up',                  s:3,r:'עד כשל',t:60,  cue:'גוף בקו ישר מהעקב לראש, מרפקים ב-45° מהגוף'},
-    {he:'מקבילים לחזה',               en:'Chest Dip',                s:3,r:'8-12',  t:90,  cue:'נטייה קדימה של הגו מעבירה את העומס מהטריצפס לחזה'},
-    {he:'פתיחות עם משקולות בשכיבה',   en:'Dumbbell Fly',             s:3,r:'12',    t:60,  cue:'ירידה איטית עד מתיחה בחזה, בלי להגיע לכאב בכתף'}
+    {en:'Barbell Bench Press',    s:4,r:'6-8',   t:120},
+    {en:'Incline Dumbbell Press', s:3,r:'8-10',  t:90},
+    {en:'Chest Press Machine',    s:3,r:'10-12', t:75},
+    {en:'Cable Crossover',        s:3,r:'12-15', t:60},
+    {en:'Pec Deck Fly',           s:3,r:'12-15', t:60},
+    {en:'Push Up',                s:3,r:'',      t:60, fail:true},
+    {en:'Chest Dip',              s:3,r:'8-12',  t:90},
+    {en:'Dumbbell Fly',           s:3,r:'12',    t:60}
   ],
   back:[
-    {he:'מתח באחיזה רחבה',        en:'Wide Grip Pull Up',        s:4,r:'6-10',  t:120, cue:'מתחילים מהורדת שכמות, הסנטר עובר את המוט'},
-    {he:'פולי עליון רחב',          en:'Lat Pulldown',             s:4,r:'8-12',  t:90,  cue:'למשוך לעצם הבריח עם חזה פתוח, לא מאחורי הצוואר'},
-    {he:'חתירה במוט בהטיה',        en:'Barbell Bent Over Row',    s:4,r:'8-10',  t:105, cue:'גב ישר בהטיה של 45°, המוט נוגע בטבור'},
-    {he:'חתירת משקולת יד אחת',     en:'One Arm Dumbbell Row',     s:3,r:'10-12', t:75,  cue:'בלי סיבוב של הגו, המרפק נצמד לצלעות'},
-    {he:'חתירה בפולי מותן',        en:'Seated Cable Row',         s:3,r:'10-12', t:75,  cue:'לא להניף את הגו אחורה — השכמות מתכנסות פנימה'},
-    {he:'פולאובר בפולי בזרוע ישרה',en:'Straight Arm Pulldown',    s:3,r:'12-15', t:60,  cue:'מרפקים כמעט נעולים, כל התנועה מפרק הכתף'},
-    {he:'מכרה מתים',               en:'Conventional Deadlift',    s:4,r:'5',     t:150, cue:'המוט צמוד לשוק, דוחפים את הרצפה במקום למשוך בגב'}
+    {en:'Wide Grip Pull Up',      s:4,r:'6-10',  t:120},
+    {en:'Lat Pulldown',           s:4,r:'8-12',  t:90},
+    {en:'Barbell Bent Over Row',  s:4,r:'8-10',  t:105},
+    {en:'One Arm Dumbbell Row',   s:3,r:'10-12', t:75},
+    {en:'Seated Cable Row',       s:3,r:'10-12', t:75},
+    {en:'Straight Arm Pulldown',  s:3,r:'12-15', t:60},
+    {en:'Conventional Deadlift',  s:4,r:'5',     t:150}
   ],
   legs:[
-    {he:'סקוואט במוט',            en:'Barbell Back Squat',       s:4,r:'6-8',   t:150, cue:'ברכיים בכיוון האצבעות, ירידה עד שהירך מקבילה לרצפה'},
-    {he:'לחיצת רגליים במכונה',    en:'Leg Press',                s:4,r:'10-12', t:105, cue:'לא לנעול ברכיים למעלה, האגן נשאר צמוד למושב'},
-    {he:'מכרה מתים רומני',        en:'Romanian Deadlift',        s:3,r:'8-10',  t:105, cue:'האגן נדחף אחורה עד מתיחה בהמסטרינג, הגב נייטרלי'},
-    {he:'סקוואט בולגרי',          en:'Bulgarian Split Squat',    s:3,r:'10 לרגל',t:90, cue:'המשקל על העקב של הרגל הקדמית, גו יציב'},
-    {he:'פשיטת ברך במכונה',       en:'Leg Extension',            s:3,r:'12-15', t:60,  cue:'עצירה של שנייה למעלה, ירידה איטית'},
-    {he:'כפיפת ברך בשכיבה',       en:'Lying Leg Curl',           s:3,r:'12-15', t:60,  cue:'האגן צמוד לכרית — בלי להרים אותו בסוף הסט'},
-    {he:'היפ תראסט',              en:'Barbell Hip Thrust',       s:3,r:'10-12', t:90,  cue:'סנטר לחזה, כיווץ ישבן חזק בשיא התנועה'},
-    {he:'לאנג׳ים בהליכה',         en:'Walking Lunge',            s:3,r:'12 לרגל',t:75, cue:'צעד ארוך, הברך האחורית כמעט נוגעת ברצפה'},
-    {he:'הרמת עקבים בעמידה',      en:'Standing Calf Raise',      s:4,r:'15-20', t:45,  cue:'טווח מלא: מתיחה מלאה למטה, עצירה למעלה'}
+    {en:'Barbell Back Squat',     s:4,r:'6-8',   t:150},
+    {en:'Leg Press',              s:4,r:'10-12', t:105},
+    {en:'Romanian Deadlift',      s:3,r:'8-10',  t:105},
+    {en:'Bulgarian Split Squat',  s:3,r:'10',    t:90,  leg:true},
+    {en:'Leg Extension',          s:3,r:'12-15', t:60},
+    {en:'Lying Leg Curl',         s:3,r:'12-15', t:60},
+    {en:'Barbell Hip Thrust',     s:3,r:'10-12', t:90},
+    {en:'Walking Lunge',          s:3,r:'12',    t:75,  leg:true},
+    {en:'Standing Calf Raise',    s:4,r:'15-20', t:45}
   ],
   shoulders:[
-    {he:'לחיצת כתפיים במוט בעמידה',en:'Standing Overhead Press', s:4,r:'6-8',   t:120, cue:'בטן וישבן מכווצים, המוט עובר קרוב לפנים'},
-    {he:'לחיצת כתפיים עם משקולות', en:'Seated Dumbbell Press',   s:3,r:'8-10',  t:90,  cue:'מרפקים מעט קדימה, בלי לקשת את הגב התחתון'},
-    {he:'הרחקות צד',               en:'Dumbbell Lateral Raise',  s:4,r:'12-15', t:60,  cue:'להוביל עם המרפק ולעצור בגובה הכתף'},
-    {he:'הרחקות אחוריות בהטיה',    en:'Bent Over Rear Delt Fly', s:3,r:'15',    t:60,  cue:'גו מקביל לרצפה, משקל קל ובקרה מלאה'},
-    {he:'פייס פול',                en:'Cable Face Pull',         s:3,r:'15',    t:60,  cue:'למשוך לגובה העיניים עם סיבוב חיצוני של הכתף'},
-    {he:'ארנולד פרס',              en:'Arnold Press',            s:3,r:'10',    t:75,  cue:'סיבוב כף היד החוצה תוך כדי הלחיצה למעלה'},
-    {he:'הרמות קדמיות',            en:'Front Raise',             s:3,r:'12',    t:45,  cue:'עד גובה העיניים, בלי תנופה מהגב'},
-    {he:'לחיצת כתפיים במכונה',     en:'Machine Shoulder Press',  s:3,r:'10-12', t:75,  cue:'התאם את גובה המושב כך שהידיות בגובה הכתף'}
+    {en:'Standing Overhead Press',s:4,r:'6-8',   t:120},
+    {en:'Seated Dumbbell Press',  s:3,r:'8-10',  t:90},
+    {en:'Dumbbell Lateral Raise', s:4,r:'12-15', t:60},
+    {en:'Bent Over Rear Delt Fly',s:3,r:'15',    t:60},
+    {en:'Cable Face Pull',        s:3,r:'15',    t:60},
+    {en:'Arnold Press',           s:3,r:'10',    t:75},
+    {en:'Front Raise',            s:3,r:'12',    t:45},
+    {en:'Machine Shoulder Press', s:3,r:'10-12', t:75}
   ],
   biceps:[
-    {he:'כפיפות מרפק במוט EZ',  en:'EZ Bar Biceps Curl',      s:4,r:'8-10',  t:75, cue:'מרפקים צמודים לגוף, בלי לנדנד את הגב'},
-    {he:'כפיפות פטיש',          en:'Hammer Curl',             s:3,r:'10-12', t:60, cue:'אחיזה ניטרלית — עובד גם את הברכיורדיאליס'},
-    {he:'כפיפות בשיפוע',        en:'Incline Dumbbell Curl',   s:3,r:'10-12', t:60, cue:'הכתף אחורה נותנת מתיחה מלאה של הביצפס'},
-    {he:'כפיפות בפולי',         en:'Cable Biceps Curl',       s:3,r:'12-15', t:45, cue:'מתח קבוע לאורך כל הטווח, בלי מנוחה למעלה'},
-    {he:'כפיפות פריצ׳ר',        en:'Preacher Curl',           s:3,r:'10',    t:60, cue:'בלי לנעול את המרפק בתחתית התנועה'}
+    {en:'EZ Bar Biceps Curl',     s:4,r:'8-10',  t:75},
+    {en:'Hammer Curl',            s:3,r:'10-12', t:60},
+    {en:'Incline Dumbbell Curl',  s:3,r:'10-12', t:60},
+    {en:'Cable Biceps Curl',      s:3,r:'12-15', t:45},
+    {en:'Preacher Curl',          s:3,r:'10',    t:60}
   ],
   triceps:[
-    {he:'פשיטת מרפק בפולי',      en:'Triceps Rope Pushdown',   s:4,r:'10-12', t:60, cue:'מרפקים נעולים לצדדים, פשיטה מלאה בסוף'},
-    {he:'פשיטת מרפק מעל הראש',   en:'Overhead Triceps Extension',s:3,r:'10-12',t:60,cue:'מותח את הראש הארוך של הטריצפס — טווח מלא למטה'},
-    {he:'לחיצה צרה במוט',        en:'Close Grip Bench Press',  s:3,r:'8-10',  t:90, cue:'אחיזה ברוחב הכתפיים, מרפקים צמודים לגוף'},
-    {he:'מקבילים לטריצפס',       en:'Triceps Dip',             s:3,r:'8-12',  t:90, cue:'גו זקוף ככל האפשר כדי למקד בטריצפס'},
-    {he:'בעיטות טריצפס',         en:'Triceps Kickback',        s:3,r:'12-15', t:45, cue:'הזרוע מקבילה לרצפה, פשיטה מלאה ועצירה'},
-    {he:'פשיטת מרפק בשכיבה',     en:'Skull Crusher',           s:3,r:'10',    t:75, cue:'רק המרפק זז, הזרוע העליונה נשארת במקום'}
+    {en:'Triceps Rope Pushdown',  s:4,r:'10-12', t:60},
+    {en:'Overhead Triceps Extension',s:3,r:'10-12',t:60},
+    {en:'Close Grip Bench Press', s:3,r:'8-10',  t:90},
+    {en:'Triceps Dip',            s:3,r:'8-12',  t:90},
+    {en:'Triceps Kickback',       s:3,r:'12-15', t:45},
+    {en:'Skull Crusher',          s:3,r:'10',    t:75}
   ],
   core:[
-    {he:'פלאנק',               en:'Plank',               s:3,r:'45-60 שנ׳',  t:45, cue:'אגן מכווץ פנימה, בלי שקיעה בגב התחתון'},
-    {he:'הרמות רגליים בתלייה', en:'Hanging Leg Raise',   s:3,r:'10-12',      t:60, cue:'להרים את האגן ולא רק את הרגליים'},
-    {he:'כפיפות בטן בפולי',    en:'Cable Crunch',        s:3,r:'15',         t:45, cue:'לגלגל את עמוד השדרה כלפי מטה, האגן קבוע'},
-    {he:'פלאנק צד',            en:'Side Plank',          s:3,r:'30-45 שנ׳',  t:30, cue:'גוף בקו ישר, אגן גבוה ולא צונח'},
-    {he:'אופני בטן',           en:'Bicycle Crunch',      s:3,r:'20',         t:45, cue:'מרפק לברך הנגדית בקצב איטי ומבוקר'},
-    {he:'רוסיאן טוויסט',       en:'Russian Twist',       s:3,r:'20',         t:45, cue:'הסיבוב מגיע מהגו, לא מהידיים'},
-    {he:'גלגלת בטן',           en:'Ab Wheel Rollout',    s:3,r:'8-12',       t:60, cue:'אגן מכווץ לאורך כל הגלגול, בלי קשת בגב'},
-    {he:'הולו הולד',           en:'Hollow Body Hold',    s:3,r:'30 שנ׳',     t:45, cue:'הגב התחתון צמוד לרצפה לכל אורך ההחזקה'}
+    {en:'Plank',                  s:3,r:'45-60', t:45, sec:true},
+    {en:'Hanging Leg Raise',      s:3,r:'10-12', t:60},
+    {en:'Cable Crunch',           s:3,r:'15',    t:45},
+    {en:'Side Plank',             s:3,r:'30-45', t:30, sec:true},
+    {en:'Bicycle Crunch',         s:3,r:'20',    t:45},
+    {en:'Russian Twist',          s:3,r:'20',    t:45},
+    {en:'Ab Wheel Rollout',       s:3,r:'8-12',  t:60},
+    {en:'Hollow Body Hold',       s:3,r:'30',    t:45, sec:true}
   ]
 };
 
-const DOW = ['א','ב','ג','ד','ה','ו','ש'];
-const DOW_FULL = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-
 const SPLITS = {
-  2:{name:'עליון / תחתון', desc:'שני אימונים שמכסים את כל הגוף — פלג עליון ופלג תחתון', slots:[0,3], days:[
-      {title:'פלג גוף עליון', focus:'חזה · גב · כתפיים · זרועות', color:'chest',
-       warm:'5 דק׳ ארגומטר + 2 סטים קלים של לחיצת חזה וסבבי כתף',
-       recipe:[['chest',2],['back',2],['shoulders',2],['biceps',1],['triceps',1]]},
-      {title:'פלג גוף תחתון וליבה', focus:'רגליים · ישבן · בטן', color:'legs',
-       warm:'5 דק׳ הליכה בשיפוע + 2 סטים של סקוואט במשקל גוף',
-       recipe:[['legs',5],['core',2]]}
+  2:{slots:[0,3], days:[
+      {color:'chest', recipe:[['chest',2],['back',2],['shoulders',2],['biceps',1],['triceps',1]]},
+      {color:'legs',  recipe:[['legs',5],['core',2]]}
   ]},
-  3:{name:'דחיפה / משיכה / רגליים', desc:'הפיצול הקלאסי — כל אימון מרכז קבוצת תנועה שלמה', slots:[0,2,4], days:[
-      {title:'יום דחיפה', focus:'חזה · כתפיים · טריצפס', color:'chest',
-       warm:'סבבי כתף עם גומייה + 2 סטים קלים של לחיצת חזה',
-       recipe:[['chest',3],['shoulders',2],['triceps',2]]},
-      {title:'יום משיכה', focus:'גב · ביצפס', color:'back',
-       warm:'תלייה על מוט 20 שנ׳ + 2 סטים קלים בפולי עליון',
-       recipe:[['back',4],['biceps',2]]},
-      {title:'יום רגליים', focus:'רגליים · ישבן · ליבה', color:'legs',
-       warm:'5 דק׳ אופניים + 2 סטים של סקוואט במשקל גוף',
-       recipe:[['legs',5],['core',2]]}
+  3:{slots:[0,2,4], days:[
+      {color:'chest', recipe:[['chest',3],['shoulders',2],['triceps',2]]},
+      {color:'back',  recipe:[['back',4],['biceps',2]]},
+      {color:'legs',  recipe:[['legs',5],['core',2]]}
   ]},
-  4:{name:'פיצול לפי שריר', desc:'כל אימון מוקדש לאזור אחד — יותר נפח לכל קבוצת שריר', slots:[0,1,3,4], days:[
-      {title:'חזה וטריצפס', focus:'חזה · טריצפס', color:'chest',
-       warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה',
-       recipe:[['chest',4],['triceps',3]]},
-      {title:'גב וביצפס', focus:'גב · ביצפס', color:'back',
-       warm:'תלייה על מוט + 2 סטים קלים בפולי עליון',
-       recipe:[['back',4],['biceps',3]]},
-      {title:'רגליים', focus:'ארבע ראשי · המסטרינג · תאומים', color:'legs',
-       warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן',
-       recipe:[['legs',6]]},
-      {title:'כתפיים וליבה', focus:'כתפיים · בטן', color:'shoulders',
-       warm:'סבבי כתף עם גומייה, 2 סטים של הרחקות צד במשקל קל',
-       recipe:[['shoulders',5],['core',2]]}
+  4:{slots:[0,1,3,4], days:[
+      {color:'chest',     recipe:[['chest',4],['triceps',3]]},
+      {color:'back',      recipe:[['back',4],['biceps',3]]},
+      {color:'legs',      recipe:[['legs',6]]},
+      {color:'shoulders', recipe:[['shoulders',5],['core',2]]}
   ]},
-  5:{name:'אזור שלם בכל יום', desc:'חמישה אזורים, חמישה אימונים — הנפח הגבוה ביותר לכל שריר', slots:[0,1,2,3,4], days:[
-      {title:'חזה', focus:'חזה עליון · אמצעי · תחתון', color:'chest',
-       warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה',
-       recipe:[['chest',6]]},
-      {title:'גב', focus:'רחב גבי · אמצע הגב · זוקפי גב', color:'back',
-       warm:'תלייה על מוט + 2 סטים קלים בפולי עליון',
-       recipe:[['back',6]]},
-      {title:'רגליים', focus:'ארבע ראשי · המסטרינג · ישבן · תאומים', color:'legs',
-       warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן',
-       recipe:[['legs',7]]},
-      {title:'כתפיים', focus:'ראש קדמי · אמצעי · אחורי', color:'shoulders',
-       warm:'סבבי כתף עם גומייה ו-2 סטים קלים של הרחקות צד',
-       recipe:[['shoulders',6]]},
-      {title:'זרועות וליבה', focus:'ביצפס · טריצפס · בטן', color:'biceps',
-       warm:'2 סטים קלים של כפיפות מרפק ופשיטות בפולי',
-       recipe:[['biceps',3],['triceps',3],['core',2]]}
+  5:{slots:[0,1,2,3,4], days:[
+      {color:'chest',     recipe:[['chest',6]]},
+      {color:'back',      recipe:[['back',6]]},
+      {color:'legs',      recipe:[['legs',7]]},
+      {color:'shoulders', recipe:[['shoulders',6]]},
+      {color:'biceps',    recipe:[['biceps',3],['triceps',3],['core',2]]}
   ]},
-  6:{name:'שישה אזורים', desc:'אימון קצר ומרוכז בכל יום, אזור אחד בכל פעם', slots:[0,1,2,3,4,5], days:[
-      {title:'חזה', focus:'חזה עליון · אמצעי · תחתון', color:'chest',
-       warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה',
-       recipe:[['chest',6]]},
-      {title:'גב', focus:'רחב גבי · אמצע הגב · זוקפי גב', color:'back',
-       warm:'תלייה על מוט + 2 סטים קלים בפולי עליון',
-       recipe:[['back',6]]},
-      {title:'רגליים', focus:'ארבע ראשי · המסטרינג · ישבן · תאומים', color:'legs',
-       warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן',
-       recipe:[['legs',7]]},
-      {title:'כתפיים', focus:'ראש קדמי · אמצעי · אחורי', color:'shoulders',
-       warm:'סבבי כתף עם גומייה ו-2 סטים קלים של הרחקות צד',
-       recipe:[['shoulders',6]]},
-      {title:'זרועות', focus:'ביצפס · טריצפס', color:'biceps',
-       warm:'2 סטים קלים של כפיפות מרפק ופשיטות בפולי',
-       recipe:[['biceps',4],['triceps',4]]},
-      {title:'ליבה ובטן', focus:'בטן ישרה · אלכסונים · ייצוב', color:'core',
-       warm:'חתול־פרה, גשר ישבן ו-30 שנ׳ פלאנק קל',
-       recipe:[['core',7]]}
+  6:{slots:[0,1,2,3,4,5], days:[
+      {color:'chest',     recipe:[['chest',6]]},
+      {color:'back',      recipe:[['back',6]]},
+      {color:'legs',      recipe:[['legs',7]]},
+      {color:'shoulders', recipe:[['shoulders',6]]},
+      {color:'biceps',    recipe:[['biceps',4],['triceps',4]]},
+      {color:'core',      recipe:[['core',7]]}
   ]}
 };
 
+/* ================== תרגומים ==================
+   לכל שפה: ui (מחרוזות הממשק), g (קבוצות שריר),
+   sp (שמות הפיצולים והימים), ex (שמות התרגילים והדגשים). */
+const LANGS = [
+  {code:'he', native:'עברית',   en:'Hebrew',  dir:'rtl'},
+  {code:'en', native:'English', en:'English', dir:'ltr'},
+  {code:'ar', native:'العربية', en:'Arabic',  dir:'rtl'},
+  {code:'es', native:'Español', en:'Spanish', dir:'ltr'},
+  {code:'fr', native:'Français',en:'French',  dir:'ltr'},
+  {code:'ru', native:'Русский', en:'Russian', dir:'ltr'}
+];
+const T = {};
+
+T.he = {
+ui:{
+ brand:'תוכנית ברזל', tagline:'בונה לך שבוע אימונים לפי כמה פעמים אתה מתאמן',
+ freqSub:'{n} אימונים בשבוע · {split}',
+ langTitle:'בחר שפה', langLead:'אפשר להחליף בכל רגע מכפתור השפה שבראש העמוד.',
+ howTitle:'איך זה עובד',
+ howLead:'אתה אומר כמה פעמים בשבוע אתה מגיע לחדר כושר, והאפליקציה בונה את השבוע הקרוב — אילו אימונים, באילו ימים, ומה בדיוק עושים בכל אחד מהם.',
+ s1t:'בוחר תדירות', s1d:'בין 2 ל-6 אימונים בשבוע. זה הקלט היחיד שנדרש ממך.',
+ s2t:'מקבל שבוע מסודר', s2d:'כל אימון מתמקד באזור אחד שלם בגוף, וימי המנוחה מפוזרים בין האימונים.',
+ s3t:'מתאמן לפי הכרטיס', s3d:'ליד כל תרגיל: כמה סטים וחזרות, כמה זמן לנוח, דגש טכני אחד, וסרטון שמראה איך מבצעים.',
+ start:'בוא נתחיל', startFine:'שלב הבחירה לוקח שנייה, ואפשר לשנות אותו בכל רגע.',
+ backLang:'חזרה לבחירת השפה', backIntro:'חזרה להסבר', backSetup:'חזרה לבחירת התדירות',
+ pickTitle:'כמה אימונים בשבוע?', pickLead:'ככל שיש יותר ימים, הפיצול מדויק יותר וכל שריר מקבל אימון נפרד משלו.',
+ weekPreview:'השבוע שייבנה', restLabel:'מנוחה', restCount:'{n} ימים',
+ build:'בנה את התוכנית', buildFine:'אפשר להחליף תרגילים ולשנות תדירות בכל רגע. הסימונים נשמרים בדפדפן שלך.',
+ shuffle:'החלף תרגילים', resetBtn:'אפס סימונים', install:'התקן במסך הבית',
+ weekAria:'ימי השבוע', dayLine:'יום {day} · אימון {i} מתוך {n}',
+ mExercises:'תרגילים', mSets:'סטים', mDuration:'משך משוער', mDone:'הושלמו',
+ warmup:'חימום', video:'סרטון', swapTitle:'החלף תרגיל',
+ doneAria:'סמן שהושלם: {x}', swapAria:'החלף את {x} בתרגיל אחר',
+ restTitle:'יום {day} — מנוחה',
+ restText:'השריר גדל בימי המנוחה, לא באימון. הליכה של 20–30 דקות, מתיחות קלות ושינה מספקת יעשו יותר מאימון נוסף.',
+ volTitle:'נפח שבועי', volLead:'סך הסטים לכל קבוצת שריר בשבוע. 10–20 סטים לשריר בשבוע הוא הטווח שרוב תוכניות ההיפרטרופיה עובדות בו.',
+ setsUnit:'סטים', arms:'זרועות',
+ note:'טווחי החזרות הם נקודת פתיחה — בחר משקל שבו החזרות האחרונות קשות אבל הטכניקה נשארת נקייה, והוסף משקל או חזרה כשהסט מרגיש קל. סרטוני ההדגמה נפתחים בחיפוש יוטיוב לתרגיל באנגלית, בלשונית חדשה.',
+ toFailure:'עד כשל', secUnit:'שנ׳', perLeg:'לכל רגל',
+ sheetTitle:'להוספה למסך הבית', sheetOk:'הבנתי',
+ iosSteps:['פתח את הדף ב<b>ספארי</b> (לא בכרום או בפייסבוק).','הקש על כפתור <b>שיתוף</b> — הריבוע עם החץ למעלה.','גלול ובחר <b>הוספה למסך הבית</b>.','הקש <b>הוסף</b>. האפליקציה תיפתח מעכשיו במסך מלא.'],
+ androidSteps:['הקש על תפריט שלוש הנקודות <b>⋮</b> בכרום.','בחר <b>התקנת אפליקציה</b> או <b>הוספה למסך הבית</b>.','אשר, והאייקון יופיע בין האפליקציות שלך.'],
+ desktopSteps:['לחץ על אייקון ההתקנה בשורת הכתובת של הדפדפן.','או: תפריט הדפדפן ← <b>התקנה</b>.'],
+ dow:['א','ב','ג','ד','ה','ו','ש'],
+ dowFull:['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת']
+},
+g:{chest:'חזה',back:'גב',legs:'רגליים',shoulders:'כתפיים',biceps:'ביצפס',triceps:'טריצפס',core:'ליבה'},
+sp:{
+ 2:{name:'עליון / תחתון', desc:'שני אימונים שמכסים את כל הגוף — פלג עליון ופלג תחתון', days:[
+   {title:'פלג גוף עליון', focus:'חזה · גב · כתפיים · זרועות', warm:'5 דק׳ ארגומטר + 2 סטים קלים של לחיצת חזה וסבבי כתף'},
+   {title:'פלג גוף תחתון וליבה', focus:'רגליים · ישבן · בטן', warm:'5 דק׳ הליכה בשיפוע + 2 סטים של סקוואט במשקל גוף'}]},
+ 3:{name:'דחיפה / משיכה / רגליים', desc:'הפיצול הקלאסי — כל אימון מרכז קבוצת תנועה שלמה', days:[
+   {title:'יום דחיפה', focus:'חזה · כתפיים · טריצפס', warm:'סבבי כתף עם גומייה + 2 סטים קלים של לחיצת חזה'},
+   {title:'יום משיכה', focus:'גב · ביצפס', warm:'תלייה על מוט 20 שנ׳ + 2 סטים קלים בפולי עליון'},
+   {title:'יום רגליים', focus:'רגליים · ישבן · ליבה', warm:'5 דק׳ אופניים + 2 סטים של סקוואט במשקל גוף'}]},
+ 4:{name:'פיצול לפי שריר', desc:'כל אימון מוקדש לאזור אחד — יותר נפח לכל קבוצת שריר', days:[
+   {title:'חזה וטריצפס', focus:'חזה · טריצפס', warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה'},
+   {title:'גב וביצפס', focus:'גב · ביצפס', warm:'תלייה על מוט + 2 סטים קלים בפולי עליון'},
+   {title:'רגליים', focus:'ארבע ראשי · המסטרינג · תאומים', warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן'},
+   {title:'כתפיים וליבה', focus:'כתפיים · בטן', warm:'סבבי כתף עם גומייה, 2 סטים של הרחקות צד במשקל קל'}]},
+ 5:{name:'אזור שלם בכל יום', desc:'חמישה אזורים, חמישה אימונים — הנפח הגבוה ביותר לכל שריר', days:[
+   {title:'חזה', focus:'חזה עליון · אמצעי · תחתון', warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה'},
+   {title:'גב', focus:'רחב גבי · אמצע הגב · זוקפי גב', warm:'תלייה על מוט + 2 סטים קלים בפולי עליון'},
+   {title:'רגליים', focus:'ארבע ראשי · המסטרינג · ישבן · תאומים', warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן'},
+   {title:'כתפיים', focus:'ראש קדמי · אמצעי · אחורי', warm:'סבבי כתף עם גומייה ו-2 סטים קלים של הרחקות צד'},
+   {title:'זרועות וליבה', focus:'ביצפס · טריצפס · בטן', warm:'2 סטים קלים של כפיפות מרפק ופשיטות בפולי'}]},
+ 6:{name:'שישה אזורים', desc:'אימון קצר ומרוכז בכל יום, אזור אחד בכל פעם', days:[
+   {title:'חזה', focus:'חזה עליון · אמצעי · תחתון', warm:'סבבי כתף + 2 סטים קלים של לחיצת חזה'},
+   {title:'גב', focus:'רחב גבי · אמצע הגב · זוקפי גב', warm:'תלייה על מוט + 2 סטים קלים בפולי עליון'},
+   {title:'רגליים', focus:'ארבע ראשי · המסטרינג · ישבן · תאומים', warm:'5 דק׳ אופניים + סקוואט במשקל גוף ופתיחת אגן'},
+   {title:'כתפיים', focus:'ראש קדמי · אמצעי · אחורי', warm:'סבבי כתף עם גומייה ו-2 סטים קלים של הרחקות צד'},
+   {title:'זרועות', focus:'ביצפס · טריצפס', warm:'2 סטים קלים של כפיפות מרפק ופשיטות בפולי'},
+   {title:'ליבה ובטן', focus:'בטן ישרה · אלכסונים · ייצוב', warm:'חתול־פרה, גשר ישבן ו-30 שנ׳ פלאנק קל'}]}
+},
+ex:{
+'Barbell Bench Press':['לחיצת חזה במוט','שכמות נעולות אחורה, המוט יורד לגובה הפטמות ונוגע קלות'],
+'Incline Dumbbell Press':['לחיצת חזה בשיפוע עם משקולות','שיפוע 30°, לא לנעול מרפקים בסוף התנועה'],
+'Chest Press Machine':['לחיצת חזה במכונה','הידיות בגובה אמצע החזה, דחיפה מבוקרת בלי תנופה'],
+'Cable Crossover':['פתיחות בפולי (קרוסאובר)','המרפק כפוף קלות וקבוע — התנועה מגיעה רק מהכתף'],
+'Pec Deck Fly':['פתיחות במכונת פק־דק','עצירה של שנייה בכיווץ, בלי להרים כתפיים לאוזניים'],
+'Push Up':['שכיבות סמיכה','גוף בקו ישר מהעקב לראש, מרפקים ב-45° מהגוף'],
+'Chest Dip':['מקבילים לחזה','נטייה קדימה של הגו מעבירה את העומס מהטריצפס לחזה'],
+'Dumbbell Fly':['פתיחות עם משקולות בשכיבה','ירידה איטית עד מתיחה בחזה, בלי להגיע לכאב בכתף'],
+'Wide Grip Pull Up':['מתח באחיזה רחבה','מתחילים מהורדת שכמות, הסנטר עובר את המוט'],
+'Lat Pulldown':['פולי עליון רחב','למשוך לעצם הבריח עם חזה פתוח, לא מאחורי הצוואר'],
+'Barbell Bent Over Row':['חתירה במוט בהטיה','גב ישר בהטיה של 45°, המוט נוגע בטבור'],
+'One Arm Dumbbell Row':['חתירת משקולת יד אחת','בלי סיבוב של הגו, המרפק נצמד לצלעות'],
+'Seated Cable Row':['חתירה בפולי מותן','לא להניף את הגו אחורה — השכמות מתכנסות פנימה'],
+'Straight Arm Pulldown':['פולאובר בפולי בזרוע ישרה','מרפקים כמעט נעולים, כל התנועה מפרק הכתף'],
+'Conventional Deadlift':['מכרה מתים','המוט צמוד לשוק, דוחפים את הרצפה במקום למשוך בגב'],
+'Barbell Back Squat':['סקוואט במוט','ברכיים בכיוון האצבעות, ירידה עד שהירך מקבילה לרצפה'],
+'Leg Press':['לחיצת רגליים במכונה','לא לנעול ברכיים למעלה, האגן נשאר צמוד למושב'],
+'Romanian Deadlift':['מכרה מתים רומני','האגן נדחף אחורה עד מתיחה בהמסטרינג, הגב נייטרלי'],
+'Bulgarian Split Squat':['סקוואט בולגרי','המשקל על העקב של הרגל הקדמית, גו יציב'],
+'Leg Extension':['פשיטת ברך במכונה','עצירה של שנייה למעלה, ירידה איטית'],
+'Lying Leg Curl':['כפיפת ברך בשכיבה','האגן צמוד לכרית — בלי להרים אותו בסוף הסט'],
+'Barbell Hip Thrust':['היפ תראסט','סנטר לחזה, כיווץ ישבן חזק בשיא התנועה'],
+'Walking Lunge':['לאנג׳ים בהליכה','צעד ארוך, הברך האחורית כמעט נוגעת ברצפה'],
+'Standing Calf Raise':['הרמת עקבים בעמידה','טווח מלא: מתיחה מלאה למטה, עצירה למעלה'],
+'Standing Overhead Press':['לחיצת כתפיים במוט בעמידה','בטן וישבן מכווצים, המוט עובר קרוב לפנים'],
+'Seated Dumbbell Press':['לחיצת כתפיים עם משקולות','מרפקים מעט קדימה, בלי לקשת את הגב התחתון'],
+'Dumbbell Lateral Raise':['הרחקות צד','להוביל עם המרפק ולעצור בגובה הכתף'],
+'Bent Over Rear Delt Fly':['הרחקות אחוריות בהטיה','גו מקביל לרצפה, משקל קל ובקרה מלאה'],
+'Cable Face Pull':['פייס פול','למשוך לגובה העיניים עם סיבוב חיצוני של הכתף'],
+'Arnold Press':['ארנולד פרס','סיבוב כף היד החוצה תוך כדי הלחיצה למעלה'],
+'Front Raise':['הרמות קדמיות','עד גובה העיניים, בלי תנופה מהגב'],
+'Machine Shoulder Press':['לחיצת כתפיים במכונה','התאם את גובה המושב כך שהידיות בגובה הכתף'],
+'EZ Bar Biceps Curl':['כפיפות מרפק במוט EZ','מרפקים צמודים לגוף, בלי לנדנד את הגב'],
+'Hammer Curl':['כפיפות פטיש','אחיזה ניטרלית — עובד גם את הברכיורדיאליס'],
+'Incline Dumbbell Curl':['כפיפות בשיפוע','הכתף אחורה נותנת מתיחה מלאה של הביצפס'],
+'Cable Biceps Curl':['כפיפות בפולי','מתח קבוע לאורך כל הטווח, בלי מנוחה למעלה'],
+'Preacher Curl':['כפיפות פריצ׳ר','בלי לנעול את המרפק בתחתית התנועה'],
+'Triceps Rope Pushdown':['פשיטת מרפק בפולי','מרפקים נעולים לצדדים, פשיטה מלאה בסוף'],
+'Overhead Triceps Extension':['פשיטת מרפק מעל הראש','מותח את הראש הארוך של הטריצפס — טווח מלא למטה'],
+'Close Grip Bench Press':['לחיצה צרה במוט','אחיזה ברוחב הכתפיים, מרפקים צמודים לגוף'],
+'Triceps Dip':['מקבילים לטריצפס','גו זקוף ככל האפשר כדי למקד בטריצפס'],
+'Triceps Kickback':['בעיטות טריצפס','הזרוע מקבילה לרצפה, פשיטה מלאה ועצירה'],
+'Skull Crusher':['פשיטת מרפק בשכיבה','רק המרפק זז, הזרוע העליונה נשארת במקום'],
+'Plank':['פלאנק','אגן מכווץ פנימה, בלי שקיעה בגב התחתון'],
+'Hanging Leg Raise':['הרמות רגליים בתלייה','להרים את האגן ולא רק את הרגליים'],
+'Cable Crunch':['כפיפות בטן בפולי','לגלגל את עמוד השדרה כלפי מטה, האגן קבוע'],
+'Side Plank':['פלאנק צד','גוף בקו ישר, אגן גבוה ולא צונח'],
+'Bicycle Crunch':['אופני בטן','מרפק לברך הנגדית בקצב איטי ומבוקר'],
+'Russian Twist':['רוסיאן טוויסט','הסיבוב מגיע מהגו, לא מהידיים'],
+'Ab Wheel Rollout':['גלגלת בטן','אגן מכווץ לאורך כל הגלגול, בלי קשת בגב'],
+'Hollow Body Hold':['הולו הולד','הגב התחתון צמוד לרצפה לכל אורך ההחזקה']
+}};
+T.en = {
+ui:{
+ brand:'Iron Plan', tagline:'Builds your training week around how often you lift',
+ freqSub:'{n} workouts a week · {split}',
+ langTitle:'Choose a language', langLead:'You can switch any time from the language button at the top of the page.',
+ howTitle:'How it works',
+ howLead:'You tell it how many times a week you get to the gym, and it builds the week ahead — which workouts, on which days, and exactly what to do in each one.',
+ s1t:'Pick a frequency', s1d:'Between 2 and 6 workouts a week. That is the only input it needs.',
+ s2t:'Get a laid-out week', s2d:'Each workout targets one whole body area, with rest days spread between them.',
+ s3t:'Train off the card', s3d:'Every exercise carries its sets and reps, the rest between them, one technique cue, and a video showing the movement.',
+ start:'Get started', startFine:'Picking takes a second, and you can change it whenever you want.',
+ backLang:'Back to language', backIntro:'Back to how it works', backSetup:'Back to frequency',
+ pickTitle:'How many workouts a week?', pickLead:'The more days you train, the finer the split, and the more each muscle gets a session of its own.',
+ weekPreview:'The week it will build', restLabel:'Rest', restCount:'{n} days',
+ build:'Build my plan', buildFine:'Swap exercises or change the frequency any time. Your ticks are saved in this browser.',
+ shuffle:'Swap exercises', resetBtn:'Clear ticks', install:'Install to home screen',
+ weekAria:'Days of the week', dayLine:'{day} · Workout {i} of {n}',
+ mExercises:'Exercises', mSets:'Sets', mDuration:'Est. time', mDone:'Done',
+ warmup:'Warm-up', video:'Video', swapTitle:'Swap exercise',
+ doneAria:'Mark done: {x}', swapAria:'Swap {x} for another exercise',
+ restTitle:'{day} — rest day',
+ restText:'Muscle grows on rest days, not in the session. A 20–30 minute walk, light stretching and enough sleep will do more than another workout.',
+ volTitle:'Weekly volume', volLead:'Total sets per muscle group across the week. 10–20 sets per muscle per week is the range most hypertrophy programmes work in.',
+ setsUnit:'sets', arms:'Arms',
+ note:'The rep ranges are a starting point — pick a weight where the last reps are hard but the technique stays clean, and add weight or a rep once a set starts feeling easy. The video buttons open a YouTube search for the exercise in a new tab.',
+ toFailure:'to failure', secUnit:'sec', perLeg:'per leg',
+ sheetTitle:'Add to your home screen', sheetOk:'Got it',
+ iosSteps:['Open the page in <b>Safari</b> (not Chrome or an in-app browser).','Tap the <b>Share</b> button — the square with the arrow.','Scroll and choose <b>Add to Home Screen</b>.','Tap <b>Add</b>. It will open full screen from now on.'],
+ androidSteps:['Tap the three-dot menu <b>⋮</b> in Chrome.','Choose <b>Install app</b> or <b>Add to Home screen</b>.','Confirm, and the icon joins your other apps.'],
+ desktopSteps:['Click the install icon in the browser address bar.','Or: browser menu → <b>Install</b>.'],
+ dow:['Su','Mo','Tu','We','Th','Fr','Sa'],
+ dowFull:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+},
+g:{chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',core:'Core'},
+sp:{
+ 2:{name:'Upper / Lower', desc:'Two sessions that cover the whole body — upper half, then lower', days:[
+   {title:'Upper body', focus:'Chest · Back · Shoulders · Arms', warm:'5 min on the rower, 2 light bench sets and shoulder circles'},
+   {title:'Lower body and core', focus:'Legs · Glutes · Abs', warm:'5 min incline walk, 2 sets of bodyweight squats'}]},
+ 3:{name:'Push / Pull / Legs', desc:'The classic split — each session owns one whole movement pattern', days:[
+   {title:'Push day', focus:'Chest · Shoulders · Triceps', warm:'Band shoulder circles, 2 light bench press sets'},
+   {title:'Pull day', focus:'Back · Biceps', warm:'20 sec bar hang, 2 light lat pulldown sets'},
+   {title:'Leg day', focus:'Legs · Glutes · Core', warm:'5 min bike, 2 sets of bodyweight squats'}]},
+ 4:{name:'Muscle split', desc:'Each session is given to one area — more volume per muscle group', days:[
+   {title:'Chest and triceps', focus:'Chest · Triceps', warm:'Shoulder circles, 2 light bench press sets'},
+   {title:'Back and biceps', focus:'Back · Biceps', warm:'Bar hang, 2 light lat pulldown sets'},
+   {title:'Legs', focus:'Quads · Hamstrings · Calves', warm:'5 min bike, bodyweight squats and hip openers'},
+   {title:'Shoulders and core', focus:'Shoulders · Abs', warm:'Band shoulder circles, 2 light lateral raise sets'}]},
+ 5:{name:'One area a day', desc:'Five areas, five sessions — the most volume each muscle can get', days:[
+   {title:'Chest', focus:'Upper · Mid · Lower chest', warm:'Shoulder circles, 2 light bench press sets'},
+   {title:'Back', focus:'Lats · Mid back · Erectors', warm:'Bar hang, 2 light lat pulldown sets'},
+   {title:'Legs', focus:'Quads · Hamstrings · Glutes · Calves', warm:'5 min bike, bodyweight squats and hip openers'},
+   {title:'Shoulders', focus:'Front · Side · Rear delts', warm:'Band shoulder circles, 2 light lateral raise sets'},
+   {title:'Arms and core', focus:'Biceps · Triceps · Abs', warm:'2 light sets of curls and cable pushdowns'}]},
+ 6:{name:'Six areas', desc:'A short, concentrated session each day, one area at a time', days:[
+   {title:'Chest', focus:'Upper · Mid · Lower chest', warm:'Shoulder circles, 2 light bench press sets'},
+   {title:'Back', focus:'Lats · Mid back · Erectors', warm:'Bar hang, 2 light lat pulldown sets'},
+   {title:'Legs', focus:'Quads · Hamstrings · Glutes · Calves', warm:'5 min bike, bodyweight squats and hip openers'},
+   {title:'Shoulders', focus:'Front · Side · Rear delts', warm:'Band shoulder circles, 2 light lateral raise sets'},
+   {title:'Arms', focus:'Biceps · Triceps', warm:'2 light sets of curls and cable pushdowns'},
+   {title:'Core and abs', focus:'Rectus · Obliques · Bracing', warm:'Cat-cow, glute bridge and a 30 sec easy plank'}]}
+},
+ex:{
+'Barbell Bench Press':['Barbell Bench Press','Shoulder blades pinned back, the bar touches lightly at nipple height'],
+'Incline Dumbbell Press':['Incline Dumbbell Press','Set the bench to 30°, and stop short of locking the elbows'],
+'Chest Press Machine':['Chest Press Machine','Handles at mid-chest height, push under control with no swing'],
+'Cable Crossover':['Cable Crossover','Elbow slightly bent and fixed — the movement comes only from the shoulder'],
+'Pec Deck Fly':['Pec Deck Fly','Hold the squeeze for a second, without shrugging up to your ears'],
+'Push Up':['Push Up','Straight line from heel to head, elbows at 45° to the body'],
+'Chest Dip':['Chest Dip','Leaning the torso forward shifts the load from triceps to chest'],
+'Dumbbell Fly':['Dumbbell Fly','Lower slowly to a stretch across the chest, never into shoulder pain'],
+'Wide Grip Pull Up':['Wide Grip Pull Up','Start by pulling the shoulder blades down, chin clears the bar'],
+'Lat Pulldown':['Lat Pulldown','Pull to the collarbone with an open chest, never behind the neck'],
+'Barbell Bent Over Row':['Barbell Bent Over Row','Flat back at 45°, the bar touches at the navel'],
+'One Arm Dumbbell Row':['One Arm Dumbbell Row','No twisting through the torso, the elbow tracks past the ribs'],
+'Seated Cable Row':['Seated Cable Row','Do not rock the torso back — draw the shoulder blades together'],
+'Straight Arm Pulldown':['Straight Arm Pulldown','Elbows almost locked, the whole movement is at the shoulder'],
+'Conventional Deadlift':['Conventional Deadlift','Bar against the shin, push the floor away rather than pulling with the back'],
+'Barbell Back Squat':['Barbell Back Squat','Knees track over the toes, descend until the thigh is parallel'],
+'Leg Press':['Leg Press','Do not lock the knees at the top, keep the hips flat on the seat'],
+'Romanian Deadlift':['Romanian Deadlift','Push the hips back to a hamstring stretch, spine neutral'],
+'Bulgarian Split Squat':['Bulgarian Split Squat','Weight through the heel of the front foot, torso steady'],
+'Leg Extension':['Leg Extension','Hold for a second at the top, lower slowly'],
+'Lying Leg Curl':['Lying Leg Curl','Hips stay pressed to the pad — do not lift them late in the set'],
+'Barbell Hip Thrust':['Barbell Hip Thrust','Chin tucked to chest, squeeze the glutes hard at the top'],
+'Walking Lunge':['Walking Lunge','Long stride, the back knee almost brushes the floor'],
+'Standing Calf Raise':['Standing Calf Raise','Full range: a deep stretch at the bottom, a pause at the top'],
+'Standing Overhead Press':['Standing Overhead Press','Abs and glutes braced, the bar passes close to the face'],
+'Seated Dumbbell Press':['Seated Dumbbell Press','Elbows slightly forward, without arching the lower back'],
+'Dumbbell Lateral Raise':['Dumbbell Lateral Raise','Lead with the elbow and stop at shoulder height'],
+'Bent Over Rear Delt Fly':['Bent Over Rear Delt Fly','Torso parallel to the floor, light weight and full control'],
+'Cable Face Pull':['Cable Face Pull','Pull to eye level while rotating the shoulders outward'],
+'Arnold Press':['Arnold Press','Rotate the palms outward as you press overhead'],
+'Front Raise':['Front Raise','Up to eye level, with no swing from the back'],
+'Machine Shoulder Press':['Machine Shoulder Press','Set the seat so the handles sit at shoulder height'],
+'EZ Bar Biceps Curl':['EZ Bar Biceps Curl','Elbows pinned to the sides, no rocking through the back'],
+'Hammer Curl':['Hammer Curl','A neutral grip — this one also works the brachioradialis'],
+'Incline Dumbbell Curl':['Incline Dumbbell Curl','The shoulder set back gives the biceps a full stretch'],
+'Cable Biceps Curl':['Cable Biceps Curl','Constant tension through the range, no rest at the top'],
+'Preacher Curl':['Preacher Curl','Do not lock the elbow out at the bottom'],
+'Triceps Rope Pushdown':['Triceps Rope Pushdown','Elbows locked at your sides, full extension at the end'],
+'Overhead Triceps Extension':['Overhead Triceps Extension','Stretches the long head — take the full range at the bottom'],
+'Close Grip Bench Press':['Close Grip Bench Press','Shoulder-width grip, elbows tucked to the body'],
+'Triceps Dip':['Triceps Dip','Stay as upright as you can to keep the load on the triceps'],
+'Triceps Kickback':['Triceps Kickback','Upper arm parallel to the floor, full extension and a pause'],
+'Skull Crusher':['Skull Crusher','Only the elbow moves, the upper arm stays put'],
+'Plank':['Plank','Pelvis tucked, with no sag through the lower back'],
+'Hanging Leg Raise':['Hanging Leg Raise','Lift the pelvis, not just the legs'],
+'Cable Crunch':['Cable Crunch','Roll the spine down, the hips stay fixed'],
+'Side Plank':['Side Plank','Body in a straight line, hips high rather than dropping'],
+'Bicycle Crunch':['Bicycle Crunch','Elbow to the opposite knee, slow and controlled'],
+'Russian Twist':['Russian Twist','The rotation comes from the torso, not the arms'],
+'Ab Wheel Rollout':['Ab Wheel Rollout','Pelvis tucked through the whole roll, no arch in the back'],
+'Hollow Body Hold':['Hollow Body Hold','Lower back pressed to the floor for the whole hold']
+}};
+T.ar = {
+ui:{
+ brand:'خطة الحديد', tagline:'يبني لك أسبوع تمرين حسب عدد مرات تدريبك',
+ freqSub:'{n} تمارين في الأسبوع · {split}',
+ langTitle:'اختر اللغة', langLead:'يمكنك التبديل في أي وقت من زر اللغة أعلى الصفحة.',
+ howTitle:'كيف يعمل',
+ howLead:'أنت تحدّد كم مرة تذهب إلى النادي في الأسبوع، والتطبيق يبني لك الأسبوع القادم — أي تمارين، في أي أيام، وماذا تفعل بالضبط في كل واحد منها.',
+ s1t:'تختار عدد الأيام', s1d:'من 2 إلى 6 تمارين في الأسبوع. هذا هو المُدخل الوحيد المطلوب منك.',
+ s2t:'تحصل على أسبوع مرتّب', s2d:'كل تمرين يركّز على منطقة كاملة واحدة في الجسم، وأيام الراحة موزّعة بينها.',
+ s3t:'تتمرّن حسب البطاقة', s3d:'بجانب كل تمرين: عدد المجموعات والتكرارات، مدة الراحة، ملاحظة فنية واحدة، وفيديو يوضّح الأداء.',
+ start:'لنبدأ', startFine:'الاختيار يستغرق ثانية، ويمكن تغييره في أي وقت.',
+ backLang:'العودة إلى اللغة', backIntro:'العودة إلى الشرح', backSetup:'العودة إلى عدد الأيام',
+ pickTitle:'كم تمريناً في الأسبوع؟', pickLead:'كلما زادت الأيام، صار التقسيم أدقّ وحصلت كل عضلة على تمرين خاص بها.',
+ weekPreview:'الأسبوع الذي سيُبنى', restLabel:'راحة', restCount:'{n} أيام',
+ build:'ابنِ الخطة', buildFine:'يمكنك تبديل التمارين وتغيير عدد الأيام في أي وقت. العلامات محفوظة في متصفحك.',
+ shuffle:'بدّل التمارين', resetBtn:'امسح العلامات', install:'ثبّت على الشاشة الرئيسية',
+ weekAria:'أيام الأسبوع', dayLine:'{day} · التمرين {i} من {n}',
+ mExercises:'تمارين', mSets:'مجموعات', mDuration:'المدة التقريبية', mDone:'أُنجزت',
+ warmup:'إحماء', video:'فيديو', swapTitle:'بدّل التمرين',
+ doneAria:'علّم كمنجَز: {x}', swapAria:'بدّل {x} بتمرين آخر',
+ restTitle:'{day} — يوم راحة',
+ restText:'العضلة تنمو في أيام الراحة لا أثناء التمرين. مشي 20–30 دقيقة، إطالات خفيفة ونوم كافٍ تفعل أكثر من تمرين إضافي.',
+ volTitle:'الحجم الأسبوعي', volLead:'مجموع المجموعات لكل مجموعة عضلية في الأسبوع. من 10 إلى 20 مجموعة للعضلة أسبوعياً هو النطاق الذي تعمل فيه معظم برامج التضخيم.',
+ setsUnit:'مجموعات', arms:'الذراعان',
+ note:'نطاقات التكرار نقطة بداية — اختر وزناً تكون فيه التكرارات الأخيرة صعبة مع بقاء الأداء سليماً، وزد الوزن أو تكراراً عندما تصبح المجموعة سهلة. أزرار الفيديو تفتح بحثاً في يوتيوب باسم التمرين بالإنجليزية في تبويب جديد.',
+ toFailure:'حتى الفشل', secUnit:'ثانية', perLeg:'لكل ساق',
+ sheetTitle:'الإضافة إلى الشاشة الرئيسية', sheetOk:'فهمت',
+ iosSteps:['افتح الصفحة في <b>سفاري</b> (لا في كروم أو متصفح داخل تطبيق).','اضغط زر <b>المشاركة</b> — المربع الذي فيه سهم للأعلى.','مرّر واختر <b>إضافة إلى الشاشة الرئيسية</b>.','اضغط <b>إضافة</b>. سيفتح التطبيق بملء الشاشة من الآن.'],
+ androidSteps:['اضغط قائمة النقاط الثلاث <b>⋮</b> في كروم.','اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>.','أكّد، وستظهر الأيقونة بين تطبيقاتك.'],
+ desktopSteps:['اضغط أيقونة التثبيت في شريط عنوان المتصفح.','أو: قائمة المتصفح ← <b>تثبيت</b>.'],
+ dow:['ح','ن','ث','ر','خ','ج','س'],
+ dowFull:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت']
+},
+g:{chest:'الصدر',back:'الظهر',legs:'الأرجل',shoulders:'الأكتاف',biceps:'البايسبس',triceps:'الترايسبس',core:'الجذع'},
+sp:{
+ 2:{name:'علوي / سفلي', desc:'تمرينان يغطيان الجسم كله — النصف العلوي ثم السفلي', days:[
+   {title:'الجزء العلوي', focus:'صدر · ظهر · أكتاف · ذراعان', warm:'5 دقائق تجديف + مجموعتان خفيفتان من ضغط الصدر ودوائر الكتف'},
+   {title:'الجزء السفلي والجذع', focus:'أرجل · مؤخرة · بطن', warm:'5 دقائق مشي على ميل + مجموعتان قرفصاء بوزن الجسم'}]},
+ 3:{name:'دفع / سحب / أرجل', desc:'التقسيم الكلاسيكي — كل تمرين يجمع نمط حركة كاملاً', days:[
+   {title:'يوم الدفع', focus:'صدر · أكتاف · ترايسبس', warm:'دوائر كتف بالمطاط + مجموعتان خفيفتان من ضغط الصدر'},
+   {title:'يوم السحب', focus:'ظهر · بايسبس', warm:'تعلّق على العقلة 20 ثانية + مجموعتان خفيفتان على البكرة العلوية'},
+   {title:'يوم الأرجل', focus:'أرجل · مؤخرة · جذع', warm:'5 دقائق دراجة + مجموعتان قرفصاء بوزن الجسم'}]},
+ 4:{name:'تقسيم حسب العضلة', desc:'كل تمرين مخصص لمنطقة واحدة — حجم أكبر لكل مجموعة عضلية', days:[
+   {title:'صدر وترايسبس', focus:'صدر · ترايسبس', warm:'دوائر كتف + مجموعتان خفيفتان من ضغط الصدر'},
+   {title:'ظهر وبايسبس', focus:'ظهر · بايسبس', warm:'تعلّق على العقلة + مجموعتان خفيفتان على البكرة العلوية'},
+   {title:'أرجل', focus:'أمامية · خلفية · سمانة', warm:'5 دقائق دراجة + قرفصاء بوزن الجسم وفتح الورك'},
+   {title:'أكتاف وجذع', focus:'أكتاف · بطن', warm:'دوائر كتف بالمطاط ومجموعتان رفع جانبي بوزن خفيف'}]},
+ 5:{name:'منطقة كاملة كل يوم', desc:'خمس مناطق، خمسة تمارين — أعلى حجم ممكن لكل عضلة', days:[
+   {title:'الصدر', focus:'الصدر العلوي · الأوسط · السفلي', warm:'دوائر كتف + مجموعتان خفيفتان من ضغط الصدر'},
+   {title:'الظهر', focus:'العضلة الجناحية · وسط الظهر · المُقوِّمات', warm:'تعلّق على العقلة + مجموعتان خفيفتان على البكرة العلوية'},
+   {title:'الأرجل', focus:'أمامية · خلفية · مؤخرة · سمانة', warm:'5 دقائق دراجة + قرفصاء بوزن الجسم وفتح الورك'},
+   {title:'الأكتاف', focus:'الرأس الأمامي · الجانبي · الخلفي', warm:'دوائر كتف بالمطاط ومجموعتان رفع جانبي خفيف'},
+   {title:'الذراعان والجذع', focus:'بايسبس · ترايسبس · بطن', warm:'مجموعتان خفيفتان من الثني ودفع البكرة'}]},
+ 6:{name:'ست مناطق', desc:'تمرين قصير ومركّز كل يوم، منطقة واحدة في كل مرة', days:[
+   {title:'الصدر', focus:'الصدر العلوي · الأوسط · السفلي', warm:'دوائر كتف + مجموعتان خفيفتان من ضغط الصدر'},
+   {title:'الظهر', focus:'العضلة الجناحية · وسط الظهر · المُقوِّمات', warm:'تعلّق على العقلة + مجموعتان خفيفتان على البكرة العلوية'},
+   {title:'الأرجل', focus:'أمامية · خلفية · مؤخرة · سمانة', warm:'5 دقائق دراجة + قرفصاء بوزن الجسم وفتح الورك'},
+   {title:'الأكتاف', focus:'الرأس الأمامي · الجانبي · الخلفي', warm:'دوائر كتف بالمطاط ومجموعتان رفع جانبي خفيف'},
+   {title:'الذراعان', focus:'بايسبس · ترايسبس', warm:'مجموعتان خفيفتان من الثني ودفع البكرة'},
+   {title:'الجذع والبطن', focus:'البطن المستقيمة · المائلة · التثبيت', warm:'قط-بقرة، جسر المؤخرة و30 ثانية بلانك خفيف'}]}
+},
+ex:{
+'Barbell Bench Press':['ضغط صدر بالبار','لوحا الكتف مثبتان للخلف، والبار ينزل حتى مستوى الحلمتين بلمسة خفيفة'],
+'Incline Dumbbell Press':['ضغط صدر مائل بالدمبل','ميل 30°، ولا تقفل المرفقين في نهاية الحركة'],
+'Chest Press Machine':['ضغط صدر على الجهاز','المقابض بمستوى منتصف الصدر، ودفع مضبوط بلا اندفاع'],
+'Cable Crossover':['تفتيح على البكرة','المرفق منثنٍ قليلاً وثابت — الحركة من الكتف فقط'],
+'Pec Deck Fly':['تفتيح على جهاز الفراشة','ثبّت الانقباض ثانية، دون رفع الكتفين نحو الأذنين'],
+'Push Up':['تمرين الضغط','الجسم على خط مستقيم من الكعب للرأس، والمرفقان بزاوية 45°'],
+'Chest Dip':['غطس على المتوازي للصدر','ميل الجذع للأمام ينقل الحمل من الترايسبس إلى الصدر'],
+'Dumbbell Fly':['تفتيح بالدمبل على المسطح','نزول بطيء حتى إطالة الصدر، ودون الوصول إلى ألم في الكتف'],
+'Wide Grip Pull Up':['عقلة بقبضة واسعة','ابدأ بخفض لوحي الكتف، والذقن يتجاوز البار'],
+'Lat Pulldown':['سحب أمامي على البكرة','اسحب إلى عظمة الترقوة والصدر مفتوح، لا خلف الرقبة'],
+'Barbell Bent Over Row':['تجديف بالبار مع الانحناء','ظهر مستقيم بانحناء 45°، والبار يلامس السرّة'],
+'One Arm Dumbbell Row':['تجديف بدمبل بذراع واحدة','دون تدوير الجذع، والمرفق يمرّ ملاصقاً للأضلاع'],
+'Seated Cable Row':['تجديف أرضي على البكرة','لا تتأرجح بالجذع للخلف — لوحا الكتف يقتربان للداخل'],
+'Straight Arm Pulldown':['سحب بذراع ممدودة على البكرة','المرفقان شبه مقفلين، وكل الحركة من مفصل الكتف'],
+'Conventional Deadlift':['الرفعة الميتة','البار ملاصق للساق، وادفع الأرض بدل السحب بالظهر'],
+'Barbell Back Squat':['قرفصاء بالبار','الركبتان باتجاه الأصابع، والنزول حتى يوازي الفخذ الأرض'],
+'Leg Press':['ضغط الأرجل على الجهاز','لا تقفل الركبتين في الأعلى، والحوض يبقى ملاصقاً للمقعد'],
+'Romanian Deadlift':['الرفعة الرومانية','ادفع الحوض للخلف حتى إطالة أوتار الركبة، والظهر محايد'],
+'Bulgarian Split Squat':['القرفصاء البلغارية','الوزن على كعب القدم الأمامية، والجذع ثابت'],
+'Leg Extension':['مدّ الركبة على الجهاز','ثبّت ثانية في الأعلى، وانزل ببطء'],
+'Lying Leg Curl':['ثني الركبة على البطن','الحوض ملاصق للوسادة — لا ترفعه في نهاية المجموعة'],
+'Barbell Hip Thrust':['دفع الحوض بالبار','الذقن نحو الصدر، وانقباض قوي للمؤخرة في الأعلى'],
+'Walking Lunge':['الطعنات مع المشي','خطوة طويلة، والركبة الخلفية تكاد تلامس الأرض'],
+'Standing Calf Raise':['رفع السمانة وقوفاً','مدى كامل: إطالة تامة في الأسفل ووقفة في الأعلى'],
+'Standing Overhead Press':['ضغط كتف بالبار وقوفاً','شدّ البطن والمؤخرة، والبار يمرّ قريباً من الوجه'],
+'Seated Dumbbell Press':['ضغط كتف بالدمبل جلوساً','المرفقان للأمام قليلاً، دون تقويس أسفل الظهر'],
+'Dumbbell Lateral Raise':['رفرفة جانبية بالدمبل','قُد الحركة بالمرفق وتوقف عند مستوى الكتف'],
+'Bent Over Rear Delt Fly':['رفرفة خلفية مع الانحناء','الجذع موازٍ للأرض، وزن خفيف وتحكم كامل'],
+'Cable Face Pull':['سحب نحو الوجه على البكرة','اسحب حتى مستوى العينين مع تدوير الكتفين للخارج'],
+'Arnold Press':['ضغط أرنولد','دوّر راحتي اليدين للخارج أثناء الدفع للأعلى'],
+'Front Raise':['رفرفة أمامية','حتى مستوى العينين، دون اندفاع من الظهر'],
+'Machine Shoulder Press':['ضغط كتف على الجهاز','اضبط ارتفاع المقعد بحيث تكون المقابض بمستوى الكتف'],
+'EZ Bar Biceps Curl':['ثني بايسبس ببار EZ','المرفقان ملاصقان للجسم، دون تأرجح الظهر'],
+'Hammer Curl':['ثني المطرقة','قبضة محايدة — تعمل أيضاً على العضلة العضدية الكعبرية'],
+'Incline Dumbbell Curl':['ثني بالدمبل على المائل','الكتف للخلف يمنح البايسبس إطالة كاملة'],
+'Cable Biceps Curl':['ثني بايسبس على البكرة','شدّ ثابت طوال المدى، بلا راحة في الأعلى'],
+'Preacher Curl':['ثني على مقعد الواعظ','لا تقفل المرفق في أسفل الحركة'],
+'Triceps Rope Pushdown':['دفع الترايسبس بالحبل','المرفقان مثبتان إلى الجانبين، ومدّ كامل في النهاية'],
+'Overhead Triceps Extension':['مدّ الترايسبس فوق الرأس','يُطيل الرأس الطويل للترايسبس — خذ المدى كاملاً في الأسفل'],
+'Close Grip Bench Press':['ضغط بقبضة ضيقة','قبضة بعرض الكتفين، والمرفقان ملاصقان للجسم'],
+'Triceps Dip':['غطس على المتوازي للترايسبس','ابقَ منتصباً قدر الإمكان لتركيز الحمل على الترايسبس'],
+'Triceps Kickback':['ركل الترايسبس للخلف','العضد موازٍ للأرض، مدّ كامل مع وقفة'],
+'Skull Crusher':['مدّ الترايسبس على المسطح','المرفق وحده يتحرك، والعضد يبقى في مكانه'],
+'Plank':['بلانك','الحوض مشدود للداخل، دون هبوط في أسفل الظهر'],
+'Hanging Leg Raise':['رفع الأرجل بالتعلّق','ارفع الحوض لا الأرجل وحدها'],
+'Cable Crunch':['طيّ البطن على البكرة','لُفّ العمود الفقري للأسفل، والحوض ثابت'],
+'Side Plank':['بلانك جانبي','الجسم على خط مستقيم، والحوض مرتفع لا هابط'],
+'Bicycle Crunch':['طيّ الدراجة','المرفق نحو الركبة المقابلة بإيقاع بطيء ومضبوط'],
+'Russian Twist':['اللفّة الروسية','الدوران من الجذع لا من الذراعين'],
+'Ab Wheel Rollout':['عجلة البطن','الحوض مشدود طوال التدحرج، دون تقويس الظهر'],
+'Hollow Body Hold':['وضعية الجسم المجوّف','أسفل الظهر ملاصق للأرض طوال مدة الثبات']
+}};
+T.es = {
+ui:{
+ brand:'Plan de Hierro', tagline:'Arma tu semana de entrenamiento según cuántas veces entrenas',
+ freqSub:'{n} entrenamientos por semana · {split}',
+ langTitle:'Elige un idioma', langLead:'Puedes cambiarlo cuando quieras desde el botón de idioma en la parte superior.',
+ howTitle:'Cómo funciona',
+ howLead:'Tú dices cuántas veces por semana vas al gimnasio, y la app arma la semana que viene: qué entrenamientos, en qué días y qué hacer exactamente en cada uno.',
+ s1t:'Eliges la frecuencia', s1d:'Entre 2 y 6 entrenamientos por semana. Es el único dato que necesita.',
+ s2t:'Recibes la semana ordenada', s2d:'Cada entrenamiento se centra en una zona completa del cuerpo, con los días de descanso repartidos entre ellos.',
+ s3t:'Entrenas con la ficha', s3d:'Junto a cada ejercicio: series y repeticiones, cuánto descansar, una clave técnica y un vídeo que muestra el movimiento.',
+ start:'Empecemos', startFine:'Elegir toma un segundo, y puedes cambiarlo cuando quieras.',
+ backLang:'Volver al idioma', backIntro:'Volver a la explicación', backSetup:'Volver a la frecuencia',
+ pickTitle:'¿Cuántos entrenamientos por semana?', pickLead:'Cuantos más días entrenes, más fina es la división y más músculos reciben una sesión propia.',
+ weekPreview:'La semana que se va a armar', restLabel:'Descanso', restCount:'{n} días',
+ build:'Armar mi plan', buildFine:'Puedes cambiar ejercicios y frecuencia cuando quieras. Las marcas se guardan en tu navegador.',
+ shuffle:'Cambiar ejercicios', resetBtn:'Borrar marcas', install:'Instalar en el inicio',
+ weekAria:'Días de la semana', dayLine:'{day} · Entrenamiento {i} de {n}',
+ mExercises:'Ejercicios', mSets:'Series', mDuration:'Duración aprox.', mDone:'Hechos',
+ warmup:'Calentamiento', video:'Vídeo', swapTitle:'Cambiar ejercicio',
+ doneAria:'Marcar como hecho: {x}', swapAria:'Cambiar {x} por otro ejercicio',
+ restTitle:'{day} — día de descanso',
+ restText:'El músculo crece en los días de descanso, no durante la sesión. Caminar 20–30 minutos, estirar suave y dormir bien harán más que otro entrenamiento.',
+ volTitle:'Volumen semanal', volLead:'Total de series por grupo muscular en la semana. De 10 a 20 series por músculo a la semana es el rango en el que trabajan la mayoría de los programas de hipertrofia.',
+ setsUnit:'series', arms:'Brazos',
+ note:'Los rangos de repeticiones son un punto de partida: elige un peso con el que las últimas repeticiones cuesten pero la técnica siga limpia, y sube peso o una repetición cuando la serie se sienta fácil. Los botones de vídeo abren una búsqueda en YouTube del ejercicio en inglés, en una pestaña nueva.',
+ toFailure:'al fallo', secUnit:'seg', perLeg:'por pierna',
+ sheetTitle:'Añadir a la pantalla de inicio', sheetOk:'Entendido',
+ iosSteps:['Abre la página en <b>Safari</b> (no en Chrome ni en un navegador dentro de otra app).','Toca el botón <b>Compartir</b>: el cuadrado con la flecha hacia arriba.','Baja y elige <b>Añadir a pantalla de inicio</b>.','Toca <b>Añadir</b>. A partir de ahora se abrirá a pantalla completa.'],
+ androidSteps:['Toca el menú de tres puntos <b>⋮</b> en Chrome.','Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.','Confirma y el icono aparecerá junto a tus otras apps.'],
+ desktopSteps:['Haz clic en el icono de instalación en la barra de direcciones.','O: menú del navegador → <b>Instalar</b>.'],
+ dow:['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+ dowFull:['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+},
+g:{chest:'Pecho',back:'Espalda',legs:'Piernas',shoulders:'Hombros',biceps:'Bíceps',triceps:'Tríceps',core:'Core'},
+sp:{
+ 2:{name:'Superior / Inferior', desc:'Dos sesiones que cubren todo el cuerpo: mitad superior y mitad inferior', days:[
+   {title:'Tren superior', focus:'Pecho · Espalda · Hombros · Brazos', warm:'5 min de remo + 2 series ligeras de press banca y círculos de hombro'},
+   {title:'Tren inferior y core', focus:'Piernas · Glúteos · Abdomen', warm:'5 min caminando en pendiente + 2 series de sentadillas sin peso'}]},
+ 3:{name:'Empuje / Tirón / Pierna', desc:'La división clásica: cada sesión reúne un patrón de movimiento completo', days:[
+   {title:'Día de empuje', focus:'Pecho · Hombros · Tríceps', warm:'Círculos de hombro con banda + 2 series ligeras de press banca'},
+   {title:'Día de tirón', focus:'Espalda · Bíceps', warm:'20 s colgado de la barra + 2 series ligeras en polea alta'},
+   {title:'Día de pierna', focus:'Piernas · Glúteos · Core', warm:'5 min de bici + 2 series de sentadillas sin peso'}]},
+ 4:{name:'División por músculo', desc:'Cada sesión se dedica a una zona: más volumen por grupo muscular', days:[
+   {title:'Pecho y tríceps', focus:'Pecho · Tríceps', warm:'Círculos de hombro + 2 series ligeras de press banca'},
+   {title:'Espalda y bíceps', focus:'Espalda · Bíceps', warm:'Colgado de la barra + 2 series ligeras en polea alta'},
+   {title:'Piernas', focus:'Cuádriceps · Isquios · Gemelos', warm:'5 min de bici + sentadillas sin peso y apertura de cadera'},
+   {title:'Hombros y core', focus:'Hombros · Abdomen', warm:'Círculos de hombro con banda y 2 series ligeras de elevaciones laterales'}]},
+ 5:{name:'Una zona por día', desc:'Cinco zonas, cinco sesiones: el mayor volumen posible por músculo', days:[
+   {title:'Pecho', focus:'Pecho superior · medio · inferior', warm:'Círculos de hombro + 2 series ligeras de press banca'},
+   {title:'Espalda', focus:'Dorsales · Espalda media · Erectores', warm:'Colgado de la barra + 2 series ligeras en polea alta'},
+   {title:'Piernas', focus:'Cuádriceps · Isquios · Glúteos · Gemelos', warm:'5 min de bici + sentadillas sin peso y apertura de cadera'},
+   {title:'Hombros', focus:'Deltoides anterior · lateral · posterior', warm:'Círculos de hombro con banda y 2 series ligeras de elevaciones laterales'},
+   {title:'Brazos y core', focus:'Bíceps · Tríceps · Abdomen', warm:'2 series ligeras de curl y extensiones en polea'}]},
+ 6:{name:'Seis zonas', desc:'Una sesión corta y concentrada cada día, una zona cada vez', days:[
+   {title:'Pecho', focus:'Pecho superior · medio · inferior', warm:'Círculos de hombro + 2 series ligeras de press banca'},
+   {title:'Espalda', focus:'Dorsales · Espalda media · Erectores', warm:'Colgado de la barra + 2 series ligeras en polea alta'},
+   {title:'Piernas', focus:'Cuádriceps · Isquios · Glúteos · Gemelos', warm:'5 min de bici + sentadillas sin peso y apertura de cadera'},
+   {title:'Hombros', focus:'Deltoides anterior · lateral · posterior', warm:'Círculos de hombro con banda y 2 series ligeras de elevaciones laterales'},
+   {title:'Brazos', focus:'Bíceps · Tríceps', warm:'2 series ligeras de curl y extensiones en polea'},
+   {title:'Core y abdomen', focus:'Recto · Oblicuos · Estabilidad', warm:'Gato-vaca, puente de glúteo y 30 s de plancha suave'}]}
+},
+ex:{
+'Barbell Bench Press':['Press de banca con barra','Escápulas fijas atrás; la barra baja a la altura de los pezones y roza'],
+'Incline Dumbbell Press':['Press inclinado con mancuernas','Banco a 30°, y no bloquees los codos al final'],
+'Chest Press Machine':['Press de pecho en máquina','Agarres a media altura del pecho, empuje controlado y sin impulso'],
+'Cable Crossover':['Cruce en poleas','Codo ligeramente flexionado y fijo: el movimiento sale solo del hombro'],
+'Pec Deck Fly':['Aperturas en máquina (pec deck)','Aguanta un segundo la contracción, sin subir los hombros a las orejas'],
+'Push Up':['Flexiones','Cuerpo en línea recta del talón a la cabeza, codos a 45°'],
+'Chest Dip':['Fondos en paralelas para pecho','Inclinar el torso adelante pasa la carga del tríceps al pecho'],
+'Dumbbell Fly':['Aperturas con mancuernas','Baja despacio hasta estirar el pecho, sin llegar al dolor de hombro'],
+'Wide Grip Pull Up':['Dominadas agarre ancho','Empieza bajando las escápulas; la barbilla pasa la barra'],
+'Lat Pulldown':['Jalón al pecho','Tira a la clavícula con el pecho abierto, nunca tras la nuca'],
+'Barbell Bent Over Row':['Remo con barra inclinado','Espalda recta a 45°, la barra toca el ombligo'],
+'One Arm Dumbbell Row':['Remo a una mano con mancuerna','Sin girar el torso; el codo pasa pegado a las costillas'],
+'Seated Cable Row':['Remo sentado en polea','No balancees el torso atrás: junta las escápulas'],
+'Straight Arm Pulldown':['Jalón con brazos rectos','Codos casi bloqueados, todo el movimiento en el hombro'],
+'Conventional Deadlift':['Peso muerto convencional','Barra pegada a la espinilla; empuja el suelo en vez de tirar con la espalda'],
+'Barbell Back Squat':['Sentadilla con barra','Rodillas hacia las puntas de los pies, baja hasta el muslo paralelo'],
+'Leg Press':['Prensa de piernas','No bloquees las rodillas arriba; la cadera pegada al asiento'],
+'Romanian Deadlift':['Peso muerto rumano','Lleva la cadera atrás hasta estirar los isquios, columna neutra'],
+'Bulgarian Split Squat':['Sentadilla búlgara','Peso en el talón de la pierna delantera, torso estable'],
+'Leg Extension':['Extensión de cuádriceps','Aguanta un segundo arriba y baja despacio'],
+'Lying Leg Curl':['Curl femoral tumbado','La cadera pegada al banco: no la levantes al final de la serie'],
+'Barbell Hip Thrust':['Hip thrust con barra','Barbilla al pecho y contracción fuerte de glúteo arriba'],
+'Walking Lunge':['Zancadas caminando','Paso largo; la rodilla de atrás casi roza el suelo'],
+'Standing Calf Raise':['Elevación de gemelos de pie','Rango completo: estiramiento abajo, pausa arriba'],
+'Standing Overhead Press':['Press militar de pie','Abdomen y glúteos apretados; la barra pasa cerca de la cara'],
+'Seated Dumbbell Press':['Press de hombros con mancuernas','Codos algo adelantados, sin arquear la zona lumbar'],
+'Dumbbell Lateral Raise':['Elevaciones laterales','Guía con el codo y para a la altura del hombro'],
+'Bent Over Rear Delt Fly':['Pájaros inclinado','Torso paralelo al suelo, poco peso y control total'],
+'Cable Face Pull':['Face pull en polea','Tira a la altura de los ojos rotando los hombros hacia fuera'],
+'Arnold Press':['Press Arnold','Gira las palmas hacia fuera mientras empujas arriba'],
+'Front Raise':['Elevaciones frontales','Hasta la altura de los ojos, sin impulso de la espalda'],
+'Machine Shoulder Press':['Press de hombros en máquina','Ajusta el asiento para que los agarres queden a la altura del hombro'],
+'EZ Bar Biceps Curl':['Curl de bíceps con barra Z','Codos pegados al cuerpo, sin balancear la espalda'],
+'Hammer Curl':['Curl martillo','Agarre neutro: también trabaja el braquiorradial'],
+'Incline Dumbbell Curl':['Curl inclinado con mancuernas','El hombro atrás da al bíceps un estiramiento completo'],
+'Cable Biceps Curl':['Curl de bíceps en polea','Tensión constante en todo el recorrido, sin descanso arriba'],
+'Preacher Curl':['Curl predicador','No bloquees el codo en la parte baja'],
+'Triceps Rope Pushdown':['Extensión de tríceps con cuerda','Codos fijos a los costados y extensión completa al final'],
+'Overhead Triceps Extension':['Extensión de tríceps sobre la cabeza','Estira la cabeza larga del tríceps: rango completo abajo'],
+'Close Grip Bench Press':['Press banca agarre cerrado','Agarre a la anchura de hombros, codos pegados al cuerpo'],
+'Triceps Dip':['Fondos para tríceps','Mantente lo más vertical posible para cargar el tríceps'],
+'Triceps Kickback':['Patada de tríceps','Brazo paralelo al suelo, extensión completa y pausa'],
+'Skull Crusher':['Press francés tumbado','Solo se mueve el codo; el brazo se queda quieto'],
+'Plank':['Plancha','Pelvis metida, sin hundir la zona lumbar'],
+'Hanging Leg Raise':['Elevación de piernas colgado','Levanta la pelvis, no solo las piernas'],
+'Cable Crunch':['Crunch en polea','Enrolla la columna hacia abajo con la cadera fija'],
+'Side Plank':['Plancha lateral','Cuerpo en línea recta, cadera alta y no caída'],
+'Bicycle Crunch':['Crunch bicicleta','Codo a la rodilla contraria, despacio y con control'],
+'Russian Twist':['Giro ruso','La rotación sale del torso, no de los brazos'],
+'Ab Wheel Rollout':['Rueda abdominal','Pelvis metida durante todo el rodado, sin arquear la espalda'],
+'Hollow Body Hold':['Hollow body','Zona lumbar pegada al suelo durante toda la sujeción']
+}};
+T.fr = {
+ui:{
+ brand:'Plan de Fer', tagline:'Construit ta semaine d’entraînement selon ta fréquence',
+ freqSub:'{n} séances par semaine · {split}',
+ langTitle:'Choisis une langue', langLead:'Tu peux en changer à tout moment depuis le bouton de langue en haut de la page.',
+ howTitle:'Comment ça marche',
+ howLead:'Tu indiques combien de fois par semaine tu vas à la salle, et l’application construit la semaine à venir : quelles séances, quels jours, et quoi faire exactement dans chacune.',
+ s1t:'Tu choisis la fréquence', s1d:'Entre 2 et 6 séances par semaine. C’est la seule information demandée.',
+ s2t:'Tu reçois une semaine organisée', s2d:'Chaque séance cible une zone entière du corps, et les jours de repos sont répartis entre elles.',
+ s3t:'Tu t’entraînes avec la fiche', s3d:'À côté de chaque exercice : séries et répétitions, temps de repos, un point technique et une vidéo qui montre le mouvement.',
+ start:'C’est parti', startFine:'Le choix prend une seconde, et reste modifiable à tout moment.',
+ backLang:'Retour à la langue', backIntro:'Retour aux explications', backSetup:'Retour à la fréquence',
+ pickTitle:'Combien de séances par semaine ?', pickLead:'Plus tu t’entraînes de jours, plus le découpage est fin et plus chaque muscle reçoit sa propre séance.',
+ weekPreview:'La semaine qui sera construite', restLabel:'Repos', restCount:'{n} jours',
+ build:'Construire mon plan', buildFine:'Tu peux changer d’exercice ou de fréquence quand tu veux. Les coches sont gardées dans ton navigateur.',
+ shuffle:'Changer les exercices', resetBtn:'Effacer les coches', install:'Installer sur l’écran d’accueil',
+ weekAria:'Jours de la semaine', dayLine:'{day} · Séance {i} sur {n}',
+ mExercises:'Exercices', mSets:'Séries', mDuration:'Durée estimée', mDone:'Faits',
+ warmup:'Échauffement', video:'Vidéo', swapTitle:'Changer d’exercice',
+ doneAria:'Marquer comme fait : {x}', swapAria:'Remplacer {x} par un autre exercice',
+ restTitle:'{day} — jour de repos',
+ restText:'Le muscle grandit les jours de repos, pas pendant la séance. Une marche de 20 à 30 minutes, des étirements légers et assez de sommeil feront plus qu’une séance de plus.',
+ volTitle:'Volume hebdomadaire', volLead:'Total des séries par groupe musculaire sur la semaine. De 10 à 20 séries par muscle et par semaine : c’est la plage dans laquelle travaillent la plupart des programmes d’hypertrophie.',
+ setsUnit:'séries', arms:'Bras',
+ note:'Les fourchettes de répétitions sont un point de départ : choisis une charge où les dernières répétitions sont dures mais la technique reste propre, et ajoute du poids ou une répétition dès qu’une série devient facile. Les boutons vidéo ouvrent une recherche YouTube de l’exercice en anglais, dans un nouvel onglet.',
+ toFailure:'jusqu’à l’échec', secUnit:'sec', perLeg:'par jambe',
+ sheetTitle:'Ajouter à l’écran d’accueil', sheetOk:'Compris',
+ iosSteps:['Ouvre la page dans <b>Safari</b> (pas Chrome ni un navigateur intégré).','Appuie sur le bouton <b>Partager</b> — le carré avec la flèche.','Fais défiler et choisis <b>Sur l’écran d’accueil</b>.','Appuie sur <b>Ajouter</b>. L’app s’ouvrira en plein écran désormais.'],
+ androidSteps:['Ouvre le menu à trois points <b>⋮</b> dans Chrome.','Choisis <b>Installer l’application</b> ou <b>Ajouter à l’écran d’accueil</b>.','Confirme, et l’icône rejoint tes autres applications.'],
+ desktopSteps:['Clique sur l’icône d’installation dans la barre d’adresse.','Ou : menu du navigateur → <b>Installer</b>.'],
+ dow:['Di','Lu','Ma','Me','Je','Ve','Sa'],
+ dowFull:['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']
+},
+g:{chest:'Pectoraux',back:'Dos',legs:'Jambes',shoulders:'Épaules',biceps:'Biceps',triceps:'Triceps',core:'Gainage'},
+sp:{
+ 2:{name:'Haut / Bas', desc:'Deux séances qui couvrent tout le corps — le haut, puis le bas', days:[
+   {title:'Haut du corps', focus:'Pectoraux · Dos · Épaules · Bras', warm:'5 min de rameur + 2 séries légères de développé couché et cercles d’épaules'},
+   {title:'Bas du corps et gainage', focus:'Jambes · Fessiers · Abdos', warm:'5 min de marche en pente + 2 séries de squats au poids du corps'}]},
+ 3:{name:'Poussée / Tirage / Jambes', desc:'Le découpage classique — chaque séance regroupe un schéma de mouvement entier', days:[
+   {title:'Jour poussée', focus:'Pectoraux · Épaules · Triceps', warm:'Cercles d’épaules à l’élastique + 2 séries légères de développé couché'},
+   {title:'Jour tirage', focus:'Dos · Biceps', warm:'20 s suspendu à la barre + 2 séries légères de tirage vertical'},
+   {title:'Jour jambes', focus:'Jambes · Fessiers · Gainage', warm:'5 min de vélo + 2 séries de squats au poids du corps'}]},
+ 4:{name:'Découpage par muscle', desc:'Chaque séance est consacrée à une zone — plus de volume par groupe musculaire', days:[
+   {title:'Pectoraux et triceps', focus:'Pectoraux · Triceps', warm:'Cercles d’épaules + 2 séries légères de développé couché'},
+   {title:'Dos et biceps', focus:'Dos · Biceps', warm:'Suspension à la barre + 2 séries légères de tirage vertical'},
+   {title:'Jambes', focus:'Quadriceps · Ischios · Mollets', warm:'5 min de vélo + squats au poids du corps et ouverture de hanches'},
+   {title:'Épaules et gainage', focus:'Épaules · Abdos', warm:'Cercles d’épaules à l’élastique et 2 séries légères d’élévations latérales'}]},
+ 5:{name:'Une zone par jour', desc:'Cinq zones, cinq séances — le volume le plus élevé possible par muscle', days:[
+   {title:'Pectoraux', focus:'Haut · Milieu · Bas des pectoraux', warm:'Cercles d’épaules + 2 séries légères de développé couché'},
+   {title:'Dos', focus:'Grands dorsaux · Milieu du dos · Érecteurs', warm:'Suspension à la barre + 2 séries légères de tirage vertical'},
+   {title:'Jambes', focus:'Quadriceps · Ischios · Fessiers · Mollets', warm:'5 min de vélo + squats au poids du corps et ouverture de hanches'},
+   {title:'Épaules', focus:'Faisceau antérieur · latéral · postérieur', warm:'Cercles d’épaules à l’élastique et 2 séries légères d’élévations latérales'},
+   {title:'Bras et gainage', focus:'Biceps · Triceps · Abdos', warm:'2 séries légères de curl et d’extensions à la poulie'}]},
+ 6:{name:'Six zones', desc:'Une séance courte et concentrée chaque jour, une zone à la fois', days:[
+   {title:'Pectoraux', focus:'Haut · Milieu · Bas des pectoraux', warm:'Cercles d’épaules + 2 séries légères de développé couché'},
+   {title:'Dos', focus:'Grands dorsaux · Milieu du dos · Érecteurs', warm:'Suspension à la barre + 2 séries légères de tirage vertical'},
+   {title:'Jambes', focus:'Quadriceps · Ischios · Fessiers · Mollets', warm:'5 min de vélo + squats au poids du corps et ouverture de hanches'},
+   {title:'Épaules', focus:'Faisceau antérieur · latéral · postérieur', warm:'Cercles d’épaules à l’élastique et 2 séries légères d’élévations latérales'},
+   {title:'Bras', focus:'Biceps · Triceps', warm:'2 séries légères de curl et d’extensions à la poulie'},
+   {title:'Gainage et abdos', focus:'Grand droit · Obliques · Stabilité', warm:'Chat-vache, pont fessier et 30 s de gainage facile'}]}
+},
+ex:{
+'Barbell Bench Press':['Développé couché à la barre','Omoplates verrouillées en arrière ; la barre descend au niveau des mamelons et effleure'],
+'Incline Dumbbell Press':['Développé incliné aux haltères','Banc à 30°, et ne verrouille pas les coudes en fin de mouvement'],
+'Chest Press Machine':['Développé pectoraux à la machine','Poignées à mi-hauteur du torse, poussée contrôlée sans élan'],
+'Cable Crossover':['Écarté à la poulie','Coude légèrement fléchi et fixe — le mouvement vient uniquement de l’épaule'],
+'Pec Deck Fly':['Écarté au pec deck','Tiens la contraction une seconde, sans monter les épaules aux oreilles'],
+'Push Up':['Pompes','Corps aligné du talon à la tête, coudes à 45° du buste'],
+'Chest Dip':['Dips pectoraux','Pencher le buste vers l’avant transfère la charge des triceps aux pectoraux'],
+'Dumbbell Fly':['Écarté couché aux haltères','Descente lente jusqu’à l’étirement, sans aller jusqu’à la douleur d’épaule'],
+'Wide Grip Pull Up':['Tractions prise large','Commence par abaisser les omoplates ; le menton dépasse la barre'],
+'Lat Pulldown':['Tirage vertical poitrine','Tire vers la clavicule, poitrine ouverte, jamais derrière la nuque'],
+'Barbell Bent Over Row':['Rowing barre buste penché','Dos plat à 45°, la barre touche au niveau du nombril'],
+'One Arm Dumbbell Row':['Rowing haltère à un bras','Sans rotation du buste ; le coude longe les côtes'],
+'Seated Cable Row':['Rowing assis à la poulie','Ne balance pas le buste en arrière — rapproche les omoplates'],
+'Straight Arm Pulldown':['Pull-over à la poulie bras tendus','Coudes presque verrouillés, tout le mouvement vient de l’épaule'],
+'Conventional Deadlift':['Soulevé de terre classique','Barre contre le tibia ; pousse le sol au lieu de tirer avec le dos'],
+'Barbell Back Squat':['Squat barre au dos','Genoux dans l’axe des orteils, descends jusqu’à la cuisse parallèle'],
+'Leg Press':['Presse à cuisses','Ne verrouille pas les genoux en haut ; le bassin reste plaqué au siège'],
+'Romanian Deadlift':['Soulevé de terre roumain','Pousse les hanches en arrière jusqu’à l’étirement des ischios, dos neutre'],
+'Bulgarian Split Squat':['Fente bulgare','Appui sur le talon de la jambe avant, buste stable'],
+'Leg Extension':['Leg extension','Bloque une seconde en haut et redescends lentement'],
+'Lying Leg Curl':['Leg curl allongé','Bassin plaqué au pad — ne le décolle pas en fin de série'],
+'Barbell Hip Thrust':['Hip thrust à la barre','Menton rentré, contraction ferme des fessiers en haut'],
+'Walking Lunge':['Fentes marchées','Grand pas ; le genou arrière frôle le sol'],
+'Standing Calf Raise':['Mollets debout','Amplitude complète : étirement en bas, pause en haut'],
+'Standing Overhead Press':['Développé militaire debout','Abdos et fessiers gainés ; la barre passe près du visage'],
+'Seated Dumbbell Press':['Développé épaules aux haltères','Coudes légèrement en avant, sans cambrer le bas du dos'],
+'Dumbbell Lateral Raise':['Élévations latérales','Guide avec le coude et arrête à hauteur d’épaule'],
+'Bent Over Rear Delt Fly':['Oiseau buste penché','Buste parallèle au sol, charge légère et contrôle total'],
+'Cable Face Pull':['Face pull à la poulie','Tire à hauteur des yeux en tournant les épaules vers l’extérieur'],
+'Arnold Press':['Développé Arnold','Tourne les paumes vers l’extérieur pendant la poussée'],
+'Front Raise':['Élévations frontales','Jusqu’à hauteur des yeux, sans élan du dos'],
+'Machine Shoulder Press':['Développé épaules à la machine','Règle le siège pour que les poignées soient à hauteur d’épaule'],
+'EZ Bar Biceps Curl':['Curl biceps à la barre EZ','Coudes collés au corps, sans balancer le dos'],
+'Hammer Curl':['Curl marteau','Prise neutre — travaille aussi le brachio-radial'],
+'Incline Dumbbell Curl':['Curl incliné aux haltères','L’épaule en arrière donne au biceps un étirement complet'],
+'Cable Biceps Curl':['Curl biceps à la poulie','Tension constante sur toute l’amplitude, sans repos en haut'],
+'Preacher Curl':['Curl au pupitre','Ne verrouille pas le coude en bas du mouvement'],
+'Triceps Rope Pushdown':['Extension triceps à la corde','Coudes bloqués le long du corps, extension complète à la fin'],
+'Overhead Triceps Extension':['Extension triceps au-dessus de la tête','Étire le chef long du triceps — amplitude complète en bas'],
+'Close Grip Bench Press':['Développé couché prise serrée','Prise largeur d’épaules, coudes serrés contre le corps'],
+'Triceps Dip':['Dips triceps','Reste le plus vertical possible pour charger les triceps'],
+'Triceps Kickback':['Kickback triceps','Bras parallèle au sol, extension complète et pause'],
+'Skull Crusher':['Barre au front','Seul le coude bouge ; le bras reste immobile'],
+'Plank':['Gainage','Bassin rétroversé, sans creuser le bas du dos'],
+'Hanging Leg Raise':['Relevé de jambes suspendu','Soulève le bassin, pas seulement les jambes'],
+'Cable Crunch':['Crunch à la poulie','Enroule la colonne vers le bas, hanches fixes'],
+'Side Plank':['Gainage latéral','Corps aligné, hanches hautes et non affaissées'],
+'Bicycle Crunch':['Crunch bicyclette','Coude vers le genou opposé, lentement et sous contrôle'],
+'Russian Twist':['Russian twist','La rotation part du buste, pas des bras'],
+'Ab Wheel Rollout':['Roue abdominale','Bassin rétroversé pendant tout le déroulé, sans cambrer'],
+'Hollow Body Hold':['Hollow body','Bas du dos plaqué au sol pendant tout le maintien']
+}};
+T.ru = {
+ui:{
+ brand:'Железный план', tagline:'Собирает тренировочную неделю под вашу частоту занятий',
+ freqSub:'{n} тренировок в неделю · {split}',
+ langTitle:'Выберите язык', langLead:'Сменить можно в любой момент кнопкой языка вверху страницы.',
+ howTitle:'Как это работает',
+ howLead:'Вы говорите, сколько раз в неделю ходите в зал, а приложение собирает ближайшую неделю — какие тренировки, в какие дни и что именно делать на каждой.',
+ s1t:'Выбираете частоту', s1d:'От 2 до 6 тренировок в неделю. Это единственное, что нужно ввести.',
+ s2t:'Получаете готовую неделю', s2d:'Каждая тренировка нацелена на одну целую зону тела, а дни отдыха распределены между ними.',
+ s3t:'Тренируетесь по карточке', s3d:'У каждого упражнения: подходы и повторы, отдых между ними, одна техническая подсказка и видео с показом движения.',
+ start:'Начать', startFine:'Выбор занимает секунду, и его можно поменять в любой момент.',
+ backLang:'Назад к языку', backIntro:'Назад к описанию', backSetup:'Назад к частоте',
+ pickTitle:'Сколько тренировок в неделю?', pickLead:'Чем больше дней, тем точнее сплит и тем чаще каждая мышца получает отдельную тренировку.',
+ weekPreview:'Неделя, которая будет собрана', restLabel:'Отдых', restCount:'{n} дн.',
+ build:'Собрать план', buildFine:'Упражнения и частоту можно менять когда угодно. Отметки хранятся в этом браузере.',
+ shuffle:'Заменить упражнения', resetBtn:'Сбросить отметки', install:'Установить на экран',
+ weekAria:'Дни недели', dayLine:'{day} · Тренировка {i} из {n}',
+ mExercises:'Упражнений', mSets:'Подходов', mDuration:'Примерно', mDone:'Сделано',
+ warmup:'Разминка', video:'Видео', swapTitle:'Заменить упражнение',
+ doneAria:'Отметить выполненным: {x}', swapAria:'Заменить {x} другим упражнением',
+ restTitle:'{day} — день отдыха',
+ restText:'Мышца растёт в дни отдыха, а не на тренировке. Прогулка 20–30 минут, лёгкая растяжка и достаточный сон дадут больше, чем ещё одна тренировка.',
+ volTitle:'Недельный объём', volLead:'Сумма подходов на каждую мышечную группу за неделю. 10–20 подходов на мышцу в неделю — диапазон, в котором работает большинство программ на гипертрофию.',
+ setsUnit:'подх.', arms:'Руки',
+ note:'Диапазоны повторов — отправная точка: берите вес, с которым последние повторы даются тяжело, но техника остаётся чистой, и добавляйте вес или повтор, когда подход становится лёгким. Кнопки видео открывают поиск на YouTube по английскому названию упражнения в новой вкладке.',
+ toFailure:'до отказа', secUnit:'сек', perLeg:'на ногу',
+ sheetTitle:'Добавить на главный экран', sheetOk:'Понятно',
+ iosSteps:['Откройте страницу в <b>Safari</b> (не в Chrome и не во встроенном браузере).','Нажмите кнопку <b>Поделиться</b> — квадрат со стрелкой вверх.','Пролистайте и выберите <b>На экран «Домой»</b>.','Нажмите <b>Добавить</b>. Дальше приложение будет открываться на весь экран.'],
+ androidSteps:['Откройте меню из трёх точек <b>⋮</b> в Chrome.','Выберите <b>Установить приложение</b> или <b>Добавить на главный экран</b>.','Подтвердите — значок появится рядом с другими приложениями.'],
+ desktopSteps:['Нажмите значок установки в адресной строке браузера.','Или: меню браузера → <b>Установить</b>.'],
+ dow:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+ dowFull:['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота']
+},
+g:{chest:'Грудь',back:'Спина',legs:'Ноги',shoulders:'Плечи',biceps:'Бицепс',triceps:'Трицепс',core:'Кор'},
+sp:{
+ 2:{name:'Верх / Низ', desc:'Две тренировки, покрывающие всё тело — верх, затем низ', days:[
+   {title:'Верх тела', focus:'Грудь · Спина · Плечи · Руки', warm:'5 мин гребли + 2 лёгких подхода жима лёжа и круги плечами'},
+   {title:'Низ тела и кор', focus:'Ноги · Ягодицы · Пресс', warm:'5 мин ходьбы в горку + 2 подхода приседаний с весом тела'}]},
+ 3:{name:'Жим / Тяга / Ноги', desc:'Классический сплит — каждая тренировка собирает целый двигательный паттерн', days:[
+   {title:'День жима', focus:'Грудь · Плечи · Трицепс', warm:'Круги плечами с резиной + 2 лёгких подхода жима лёжа'},
+   {title:'День тяги', focus:'Спина · Бицепс', warm:'20 сек вис на перекладине + 2 лёгких подхода верхней тяги'},
+   {title:'День ног', focus:'Ноги · Ягодицы · Кор', warm:'5 мин велотренажёра + 2 подхода приседаний с весом тела'}]},
+ 4:{name:'Сплит по мышцам', desc:'Каждая тренировка отдана одной зоне — больше объёма на группу', days:[
+   {title:'Грудь и трицепс', focus:'Грудь · Трицепс', warm:'Круги плечами + 2 лёгких подхода жима лёжа'},
+   {title:'Спина и бицепс', focus:'Спина · Бицепс', warm:'Вис на перекладине + 2 лёгких подхода верхней тяги'},
+   {title:'Ноги', focus:'Квадрицепс · Бицепс бедра · Икры', warm:'5 мин велотренажёра + приседания с весом тела и раскрытие таза'},
+   {title:'Плечи и кор', focus:'Плечи · Пресс', warm:'Круги плечами с резиной и 2 лёгких подхода махов в стороны'}]},
+ 5:{name:'Одна зона в день', desc:'Пять зон, пять тренировок — максимальный объём на каждую мышцу', days:[
+   {title:'Грудь', focus:'Верх · Середина · Низ груди', warm:'Круги плечами + 2 лёгких подхода жима лёжа'},
+   {title:'Спина', focus:'Широчайшие · Середина спины · Разгибатели', warm:'Вис на перекладине + 2 лёгких подхода верхней тяги'},
+   {title:'Ноги', focus:'Квадрицепс · Бицепс бедра · Ягодицы · Икры', warm:'5 мин велотренажёра + приседания с весом тела и раскрытие таза'},
+   {title:'Плечи', focus:'Передний · Средний · Задний пучок', warm:'Круги плечами с резиной и 2 лёгких подхода махов в стороны'},
+   {title:'Руки и кор', focus:'Бицепс · Трицепс · Пресс', warm:'2 лёгких подхода сгибаний и разгибаний на блоке'}]},
+ 6:{name:'Шесть зон', desc:'Короткая сфокусированная тренировка каждый день, по одной зоне', days:[
+   {title:'Грудь', focus:'Верх · Середина · Низ груди', warm:'Круги плечами + 2 лёгких подхода жима лёжа'},
+   {title:'Спина', focus:'Широчайшие · Середина спины · Разгибатели', warm:'Вис на перекладине + 2 лёгких подхода верхней тяги'},
+   {title:'Ноги', focus:'Квадрицепс · Бицепс бедра · Ягодицы · Икры', warm:'5 мин велотренажёра + приседания с весом тела и раскрытие таза'},
+   {title:'Плечи', focus:'Передний · Средний · Задний пучок', warm:'Круги плечами с резиной и 2 лёгких подхода махов в стороны'},
+   {title:'Руки', focus:'Бицепс · Трицепс', warm:'2 лёгких подхода сгибаний и разгибаний на блоке'},
+   {title:'Кор и пресс', focus:'Прямая мышца · Косые · Стабилизация', warm:'Кошка-корова, ягодичный мостик и 30 сек лёгкой планки'}]}
+},
+ex:{
+'Barbell Bench Press':['Жим штанги лёжа','Лопатки сведены и прижаты, штанга опускается к уровню сосков и легко касается'],
+'Incline Dumbbell Press':['Жим гантелей на наклонной','Наклон 30°, и не выпрямляйте локти до упора в конце'],
+'Chest Press Machine':['Жим в тренажёре на грудь','Ручки на уровне середины груди, жим подконтрольный, без рывка'],
+'Cable Crossover':['Сведение рук в кроссовере','Локоть слегка согнут и зафиксирован — движение идёт только от плеча'],
+'Pec Deck Fly':['Сведение в тренажёре «бабочка»','Задержите сокращение на секунду, не поднимая плечи к ушам'],
+'Push Up':['Отжимания','Тело прямой линией от пятки до головы, локти под 45° к корпусу'],
+'Chest Dip':['Отжимания на брусьях на грудь','Наклон корпуса вперёд переносит нагрузку с трицепса на грудь'],
+'Dumbbell Fly':['Разводка гантелей лёжа','Медленно вниз до растяжения груди, не доводя до боли в плече'],
+'Wide Grip Pull Up':['Подтягивания широким хватом','Начинайте с опускания лопаток, подбородок выходит над перекладиной'],
+'Lat Pulldown':['Верхняя тяга к груди','Тяните к ключице с раскрытой грудью, не за голову'],
+'Barbell Bent Over Row':['Тяга штанги в наклоне','Спина прямая, наклон 45°, штанга касается живота'],
+'One Arm Dumbbell Row':['Тяга гантели одной рукой','Без разворота корпуса, локоть идёт вплотную к рёбрам'],
+'Seated Cable Row':['Горизонтальная тяга сидя','Не раскачивайте корпус назад — сводите лопатки'],
+'Straight Arm Pulldown':['Пулловер на блоке прямыми руками','Локти почти выпрямлены, всё движение в плечевом суставе'],
+'Conventional Deadlift':['Классическая становая тяга','Штанга у голени, отталкивайте пол вместо тяги спиной'],
+'Barbell Back Squat':['Приседания со штангой','Колени по направлению носков, вниз до параллели бедра с полом'],
+'Leg Press':['Жим ногами в тренажёре','Не выпрямляйте колени до упора вверху, таз прижат к сиденью'],
+'Romanian Deadlift':['Румынская тяга','Таз назад до растяжения задней поверхности бедра, спина нейтральная'],
+'Bulgarian Split Squat':['Болгарский выпад','Вес на пятке передней ноги, корпус устойчив'],
+'Leg Extension':['Разгибание ног в тренажёре','Задержка на секунду вверху, вниз медленно'],
+'Lying Leg Curl':['Сгибание ног лёжа','Таз прижат к подушке — не отрывайте его в конце подхода'],
+'Barbell Hip Thrust':['Ягодичный мостик со штангой','Подбородок к груди, сильное сжатие ягодиц в верхней точке'],
+'Walking Lunge':['Выпады в ходьбе','Длинный шаг, задняя нога почти касается пола коленом'],
+'Standing Calf Raise':['Подъёмы на носки стоя','Полная амплитуда: глубокое растяжение внизу, пауза вверху'],
+'Standing Overhead Press':['Жим штанги стоя','Пресс и ягодицы напряжены, штанга проходит близко к лицу'],
+'Seated Dumbbell Press':['Жим гантелей сидя','Локти чуть вперёд, без прогиба в пояснице'],
+'Dumbbell Lateral Raise':['Махи гантелями в стороны','Ведите локтем и останавливайтесь на уровне плеча'],
+'Bent Over Rear Delt Fly':['Махи в наклоне на задние дельты','Корпус параллелен полу, малый вес и полный контроль'],
+'Cable Face Pull':['Тяга к лицу на блоке','Тяните на уровень глаз с внешним вращением плеч'],
+'Arnold Press':['Жим Арнольда','Разворачивайте ладони наружу по ходу жима вверх'],
+'Front Raise':['Подъёмы рук перед собой','До уровня глаз, без раскачки спиной'],
+'Machine Shoulder Press':['Жим на плечи в тренажёре','Настройте сиденье так, чтобы ручки были на уровне плеч'],
+'EZ Bar Biceps Curl':['Сгибания на бицепс с EZ-грифом','Локти прижаты к корпусу, без раскачки спиной'],
+'Hammer Curl':['Молотковые сгибания','Нейтральный хват — работает и плечелучевая мышца'],
+'Incline Dumbbell Curl':['Сгибания на наклонной скамье','Плечо отведено назад и даёт бицепсу полное растяжение'],
+'Cable Biceps Curl':['Сгибания на бицепс на блоке','Постоянное напряжение по всей амплитуде, без отдыха вверху'],
+'Preacher Curl':['Сгибания на скамье Скотта','Не выпрямляйте локоть до конца в нижней точке'],
+'Triceps Rope Pushdown':['Разгибания на трицепс с канатом','Локти зафиксированы по бокам, полное разгибание в конце'],
+'Overhead Triceps Extension':['Разгибания на трицепс из-за головы','Растягивает длинную головку — берите полную амплитуду внизу'],
+'Close Grip Bench Press':['Жим узким хватом','Хват на ширине плеч, локти прижаты к корпусу'],
+'Triceps Dip':['Отжимания на брусьях на трицепс','Держитесь максимально вертикально, чтобы нагрузить трицепс'],
+'Triceps Kickback':['Разгибание руки в наклоне','Плечо параллельно полу, полное разгибание и пауза'],
+'Skull Crusher':['Французский жим лёжа','Двигается только локоть, плечо остаётся на месте'],
+'Plank':['Планка','Таз подкручен, без провала в пояснице'],
+'Hanging Leg Raise':['Подъём ног в висе','Поднимайте таз, а не только ноги'],
+'Cable Crunch':['Скручивания на блоке','Скручивайте позвоночник вниз, таз зафиксирован'],
+'Side Plank':['Боковая планка','Тело прямой линией, таз высоко и не провисает'],
+'Bicycle Crunch':['Скручивания «велосипед»','Локоть к противоположному колену, медленно и подконтрольно'],
+'Russian Twist':['Русские скручивания','Вращение идёт от корпуса, а не от рук'],
+'Ab Wheel Rollout':['Ролик для пресса','Таз подкручен на всём прокате, без прогиба в спине'],
+'Hollow Body Hold':['Удержание «лодочки»','Поясница прижата к полу всё время удержания']
+}};
+/*LANG-DATA*/
+
 /* ================== מצב ================== */
 const KEY='iron-plan-v1';
-const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},started:false,seenIntro:false};
+const DEF={freq:3,seed:1,sel:0,done:{},swaps:{},screen:'lang',lang:null};
 let state = load();
 
 function load(){
@@ -658,6 +1340,56 @@ function shuffled(arr,seedStr){
 }
 function timer(sec){const m=Math.floor(sec/60),s=sec%60;return m+':'+String(s).padStart(2,'0');}
 function vidUrl(en){return 'https://www.youtube.com/results?search_query='+encodeURIComponent(en+' proper form technique');}
+
+/* ---- גישה לתרגום הנוכחי ---- */
+function L(){ return T[state.lang] || T.he; }
+function U(){ return L().ui; }
+function fill(str,vals){ return String(str).replace(/\{(\w+)\}/g,(m,k)=>(k in vals?vals[k]:m)); }
+function exName(en){ const e=L().ex[en]; return e?e[0]:en; }
+function exCue(en){ const e=L().ex[en]; return e?e[1]:''; }
+function repsText(e){
+  const u=U();
+  if(e.fail) return u.toFailure;
+  let s=e.r;
+  if(e.sec) s+=' '+u.secUnit;
+  if(e.leg) s+=' '+u.perLeg;
+  return s;
+}
+function langDef(code){ return LANGS.find(l=>l.code===code) || LANGS[0]; }
+
+/* מחיל את השפה הנבחרת על כל הטקסטים הקבועים ועל כיווניות העמוד */
+function applyLang(){
+  const u=U(), def=langDef(state.lang);
+  document.documentElement.lang=def.code;
+  document.documentElement.dir=def.dir;
+  document.querySelector('.app').setAttribute('dir',def.dir);
+  document.title=u.brand;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=u[el.dataset.i18n];
+    if(typeof v==='string') el.textContent=v;
+  });
+  document.getElementById('week').setAttribute('aria-label',u.weekAria);
+  document.getElementById('langChipLabel').textContent=def.native;
+  renderLangList();
+}
+
+function renderLangList(){
+  const list=document.getElementById('langList');
+  list.innerHTML='';
+  LANGS.forEach(l=>{
+    const li=document.createElement('li');
+    const b=document.createElement('button');
+    b.className='lang-opt'; b.type='button';
+    b.setAttribute('aria-pressed', String(l.code===state.lang));
+    b.setAttribute('dir', l.dir);
+    b.innerHTML=`<span class="lang-native">${l.native}</span><span class="lang-en">${l.en}</span>`;
+    b.addEventListener('click',()=>{
+      state.lang=l.code; save(); applyLang();
+      go(state.screen==='lang' ? 'intro' : state.screen);
+    });
+    li.appendChild(b); list.appendChild(li);
+  });
+}
 
 /* בונה את רשימת התרגילים ליום מסוים */
 function buildDay(dayIdx){
@@ -705,9 +1437,10 @@ const preview=document.getElementById('preview');
 let setupPick=state.freq;
 
 function renderSetup(){
+  const u=U(), t=L();
   freqList.innerHTML='';
   for(let n=2;n<=6;n++){
-    const sp=SPLITS[n];
+    const sp=SPLITS[n], meta=t.sp[n];
     const li=document.createElement('li');
     const b=document.createElement('button');
     b.className='freq';
@@ -716,43 +1449,39 @@ function renderSetup(){
     b.innerHTML=`
       <span class="freq-num">${n}</span>
       <span>
-        <span class="freq-name">${sp.name}</span>
-        <span class="freq-desc">${sp.desc}</span>
+        <span class="freq-name">${meta.name}</span>
+        <span class="freq-desc">${meta.desc}</span>
       </span>
       <span class="freq-dots" aria-hidden="true">${
         Array.from({length:7},(_,i)=>{
           const idx=sp.slots.indexOf(i);
           if(idx<0) return '<i></i>';
-          return `<i data-on style="--dot:${G[sp.days[idx].color].c}"></i>`;
+          return `<i data-on style="--dot:${G[sp.days[idx].color]}"></i>`;
         }).join('')
       }</span>`;
     b.addEventListener('click',()=>{setupPick=n;renderSetup();});
     li.appendChild(b);
     freqList.appendChild(li);
   }
-  const sp=SPLITS[setupPick];
-  preview.innerHTML=sp.days.map((d,i)=>
-    `<span class="preview-day" style="--pc:${G[d.color].c}"><b></b>${d.title}<span>יום ${DOW_FULL[sp.slots[i]]}</span></span>`
-  ).join('') + `<span class="preview-day" style="--pc:var(--line-strong)"><b></b>מנוחה<span>${7-setupPick} ימים</span></span>`;
+  const sp=SPLITS[setupPick], meta=t.sp[setupPick];
+  preview.innerHTML=meta.days.map((d,i)=>
+    `<span class="preview-day" style="--pc:${G[sp.days[i].color]}"><b></b>${d.title}<span>${u.dowFull[sp.slots[i]]}</span></span>`
+  ).join('') + `<span class="preview-day" style="--pc:var(--line-strong)"><b></b>${u.restLabel}<span>${fill(u.restCount,{n:7-setupPick})}</span></span>`;
 }
 
 /* מעבר בין המסכים. push=false כשהמעבר מגיע מכפתור החזרה של הדפדפן,
    כדי לא לדחוף עוד רשומה להיסטוריה על כל חזרה. */
 function go(screen,push){
-  if(screen==='intro'){
-    state.started=false; state.seenIntro=false;
-  }else if(screen==='setup'){
-    state.started=false; state.seenIntro=true;
-    setupPick=state.freq; renderSetup();
-  }else{
-    state.started=true; state.seenIntro=true;
-  }
+  if(screen==='setup'){ setupPick=state.freq; renderSetup(); }
+  state.screen=screen;
   save();
   if(push!==false){ try{ history.pushState({screen:screen},''); }catch(e){} }
   route();
 }
 
 document.getElementById('btnStart').addEventListener('click',()=>go('setup'));
+document.getElementById('btnToLang').addEventListener('click',()=>go('lang'));
+document.getElementById('btnLangChip').addEventListener('click',()=>go('lang'));
 document.getElementById('btnIntro').addEventListener('click',()=>go('intro'));
 document.getElementById('btnToSetup').addEventListener('click',()=>go('setup'));
 document.getElementById('btnBuild').addEventListener('click',()=>{
@@ -762,7 +1491,7 @@ document.getElementById('btnBuild').addEventListener('click',()=>{
 });
 
 window.addEventListener('popstate',(e)=>{
-  go((e.state&&e.state.screen)||'intro', false);
+  go((e.state&&e.state.screen)||'lang', false);
 });
 document.getElementById('btnShuffle').addEventListener('click',()=>{
   state.seed++; state.swaps={}; state.done={}; save(); renderPlan();
@@ -778,10 +1507,11 @@ const barsEl=document.getElementById('bars');
 
 function renderPlan(){
   const sp=SPLITS[state.freq];
+  const u=U(), meta=L().sp[state.freq];
   const map=slotMap();
   const plan=wholePlan();
 
-  document.getElementById('brandSub').textContent=`${state.freq} אימונים בשבוע · ${sp.name}`;
+  document.getElementById('brandSub').textContent=fill(u.freqSub,{n:state.freq,split:meta.name});
 
   /* רצועת השבוע */
   weekEl.innerHTML='';
@@ -797,10 +1527,10 @@ function renderPlan(){
       const list=plan[di].ex, d=doneSet(di);
       pct=Math.round(list.filter(e=>d.has(e.en)).length/list.length*100);
     }
-    const col=isTrain?G[sp.days[di].color].c:'var(--line-strong)';
+    const col=isTrain?G[sp.days[di].color]:'var(--line-strong)';
     b.style.setProperty('--pc',col);
-    b.innerHTML=`<span class="dow">${DOW[wd]}</span>
-      <span class="glabel">${isTrain?sp.days[di].title:'מנוחה'}</span>
+    b.innerHTML=`<span class="dow">${u.dow[wd]}</span>
+      <span class="glabel">${isTrain?meta.days[di].title:u.restLabel}</span>
       <span class="prog"><i style="width:${pct}%"></i></span>`;
     b.addEventListener('click',()=>{state.sel=wd;save();renderPlan();});
     weekEl.appendChild(b);
@@ -808,14 +1538,15 @@ function renderPlan(){
 
   /* כרטיס היום */
   const di=map[state.sel];
+  const dayName=u.dowFull[state.sel];
   if(di===undefined){
     cardEl.style.setProperty('--day','var(--ink-3)');
     cardEl.innerHTML=`<div class="restday">
-      <h2>יום ${DOW_FULL[state.sel]} — מנוחה</h2>
-      <p>השריר גדל בימי המנוחה, לא באימון. הליכה של 20–30 דקות, מתיחות קלות ושינה מספקת יעשו יותר מאימון נוסף.</p>
+      <h2>${fill(u.restTitle,{day:dayName})}</h2>
+      <p>${u.restText}</p>
     </div>`;
   }else{
-    const day=plan[di], def=day.def, col=G[def.color].c;
+    const day=plan[di], dayMeta=meta.days[di], col=G[day.def.color];
     const d=doneSet(di);
     const totalSets=day.ex.reduce((a,e)=>a+e.s,0);
     const mins=Math.round(day.ex.reduce((a,e)=>a+e.s*(e.t+45),0)/60)+8;
@@ -823,41 +1554,43 @@ function renderPlan(){
     cardEl.innerHTML=`
       <div class="card-head">
         <div>
-          <div class="eyebrow">יום ${DOW_FULL[state.sel]} · אימון ${di+1} מתוך ${state.freq}</div>
-          <h2>${def.title}</h2>
-          <p class="sub">${def.focus}</p>
+          <div class="eyebrow">${fill(u.dayLine,{day:dayName,i:di+1,n:state.freq})}</div>
+          <h2>${dayMeta.title}</h2>
+          <p class="sub">${dayMeta.focus}</p>
         </div>
         <dl class="meta">
-          <div><dt>תרגילים</dt><dd>${day.ex.length}</dd></div>
-          <div><dt>סטים</dt><dd>${totalSets}</dd></div>
-          <div><dt>משך משוער</dt><dd>${mins}′</dd></div>
-          <div><dt>הושלמו</dt><dd>${day.ex.filter(e=>d.has(e.en)).length}/${day.ex.length}</dd></div>
+          <div><dt>${u.mExercises}</dt><dd>${day.ex.length}</dd></div>
+          <div><dt>${u.mSets}</dt><dd>${totalSets}</dd></div>
+          <div><dt>${u.mDuration}</dt><dd>${mins}′</dd></div>
+          <div><dt>${u.mDone}</dt><dd>${day.ex.filter(e=>d.has(e.en)).length}/${day.ex.length}</dd></div>
         </dl>
       </div>
-      <div class="warm"><b>חימום</b><span>${def.warm}</span></div>
-      <ul class="ex-list">${day.ex.map((e,i)=>`
+      <div class="warm"><b>${u.warmup}</b><span>${dayMeta.warm}</span></div>
+      <ul class="ex-list">${day.ex.map((e,i)=>{
+        const nm=exName(e.en);
+        return `
         <li class="ex${d.has(e.en)?' done':''}">
-          <button class="tick" type="button" data-tick="${i}" aria-pressed="${d.has(e.en)}" aria-label="סמן שהושלם: ${e.he}">
+          <button class="tick" type="button" data-tick="${i}" aria-pressed="${d.has(e.en)}" aria-label="${fill(u.doneAria,{x:nm})}">
             <svg viewBox="0 0 16 16" aria-hidden="true"><polyline points="3,8.5 6.5,12 13,4.5"/></svg>
           </button>
           <span class="ex-name">
-            <span class="ex-he">${e.he}</span>
-            <span class="ex-en">${G[e.g].he} · <bdi>${e.en}</bdi></span>
+            <span class="ex-he">${nm}</span>
+            <span class="ex-en">${L().g[e.g]} · <bdi>${e.en}</bdi></span>
           </span>
           <span class="presc">
-            <b>${e.s}×${e.r}</b>
+            <b>${e.s}×${repsText(e)}</b>
             <span class="rest">${timer(e.t)}</span>
           </span>
           <span class="act">
             <a class="vid" href="${vidUrl(e.en)}" target="_blank" rel="noopener noreferrer">
-              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>סרטון
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>${u.video}
             </a>
-            <button class="swap" type="button" data-swap="${i}" title="החלף תרגיל" aria-label="החלף את ${e.he} בתרגיל אחר">
+            <button class="swap" type="button" data-swap="${i}" title="${u.swapTitle}" aria-label="${fill(u.swapAria,{x:nm})}">
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5h11l-3-3M14 11H3l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </span>
-          <span class="cue">${e.cue}</span>
-        </li>`).join('')}</ul>`;
+          <span class="cue">${exCue(e.en)}</span>
+        </li>`;}).join('')}</ul>`;
 
     cardEl.querySelectorAll('[data-tick]').forEach(btn=>{
       btn.addEventListener('click',()=>{
@@ -881,7 +1614,8 @@ function renderPlan(){
     const key = (e.g==='biceps'||e.g==='triceps') ? 'arms' : e.g;
     vol[key]=(vol[key]||0)+e.s;
   }));
-  const NAMES={chest:'חזה',back:'גב',legs:'רגליים',shoulders:'כתפיים',arms:'זרועות',core:'ליבה'};
+  const g=L().g;
+  const NAMES={chest:g.chest,back:g.back,legs:g.legs,shoulders:g.shoulders,arms:u.arms,core:g.core};
   const COLS={chest:'var(--c-chest)',back:'var(--c-back)',legs:'var(--c-legs)',
               shoulders:'var(--c-shoulders)',arms:'var(--c-arms)',core:'var(--c-core)'};
   const max=Math.max(...Object.values(vol),1);
@@ -890,32 +1624,32 @@ function renderPlan(){
     return `<div class="bar" style="--bc:${COLS[k]}">
       <span class="bname">${NAMES[k]}</span>
       <span class="track"><span class="fill" style="width:${Math.round(v/max*100)}%"></span></span>
-      <span class="bval">${v} סטים</span>
+      <span class="bval">${v} ${u.setsUnit}</span>
     </div>`;
   }).join('');
 }
 
 function route(){
-  const showPlan  = state.started;
-  const showIntro = !state.started && !state.seenIntro;
-  const showSetup = !state.started && state.seenIntro;
-  document.getElementById('intro').hidden=!showIntro;
-  document.getElementById('setup').hidden=!showSetup;
-  document.getElementById('planView').hidden=!showPlan;
-  document.getElementById('planActions').hidden=!showPlan;
-  if(showPlan){
+  if(!state.lang) state.screen='lang';
+  const s=state.screen;
+  document.getElementById('lang').hidden     = s!=='lang';
+  document.getElementById('intro').hidden    = s!=='intro';
+  document.getElementById('setup').hidden    = s!=='setup';
+  document.getElementById('planView').hidden = s!=='plan';
+  document.getElementById('planActions').hidden = s!=='plan';
+  document.getElementById('btnLangChip').hidden = s==='lang';
+  if(s==='plan'){
     renderPlan();
   }else{
-    document.getElementById('brandSub').textContent='בונה לך שבוע אימונים לפי כמה פעמים אתה מתאמן';
+    document.getElementById('brandSub').textContent=U().tagline;
   }
   window.scrollTo({top:0,behavior:'auto'});
 }
 
+applyLang();
 renderSetup();
 route();
-try{
-  history.replaceState({screen: state.started ? 'plan' : (state.seenIntro ? 'setup' : 'intro')},'');
-}catch(e){}
+try{ history.replaceState({screen:state.screen},''); }catch(e){}
 
 /* ================== התקנה כאפליקציה ================== */
 const btnInstall=document.getElementById('btnInstall');
@@ -929,21 +1663,14 @@ const ua = navigator.userAgent;
 const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
 const isAndroid = /Android/.test(ua);
 
-const STEPS = isIOS ? [
-  'פתח את הדף ב<b>ספארי</b> (לא בכרום או בפייסבוק).',
-  'הקש על כפתור <b>שיתוף</b> — הריבוע עם החץ למעלה.',
-  'גלול ובחר <b>הוספה למסך הבית</b>.',
-  'הקש <b>הוסף</b>. האפליקציה תיפתח מעכשיו במסך מלא.'
-] : isAndroid ? [
-  'הקש על תפריט שלוש הנקודות <b>⋮</b> בכרום.',
-  'בחר <b>התקנת אפליקציה</b> או <b>הוספה למסך הבית</b>.',
-  'אשר, והאייקון יופיע בין האפליקציות שלך.'
-] : [
-  'לחץ על אייקון ההתקנה בשורת הכתובת של הדפדפן.',
-  'או: תפריט הדפדפן ← <b>התקנה</b> / <b>Install</b>.'
-];
+function installSteps(){
+  const u=U();
+  return isIOS ? u.iosSteps : isAndroid ? u.androidSteps : u.desktopSteps;
+}
 
-if(!isStandalone){
+/* בתוך iframe (למשל בתצוגת ארטיפקט) אי אפשר להתקין — אז אין טעם בכפתור */
+const inFrame = (function(){ try{ return window.self !== window.top; }catch(e){ return true; } })();
+if(!isStandalone && !inFrame){
   btnInstall.setAttribute('data-show','');
 }
 window.addEventListener('beforeinstallprompt',(e)=>{
@@ -962,7 +1689,7 @@ btnInstall.addEventListener('click', async ()=>{
     deferredPrompt=null;
     return;
   }
-  sheetSteps.innerHTML = STEPS.map(s=>`<li>${s}</li>`).join('');
+  sheetSteps.innerHTML = installSteps().map(s=>`<li>${s}</li>`).join('');
   sheet.setAttribute('data-open','');
 });
 document.getElementById('sheetClose').addEventListener('click',()=>sheet.removeAttribute('data-open'));

@@ -1,7 +1,7 @@
 ﻿/* תוכנית ברזל — service worker
    מטרה אחת: שהאפליקציה תיפתח גם בלי אינטרנט, עם הגופנים והאייקונים. */
 
-const VERSION = 'iron-plan-v4';
+const VERSION = 'iron-plan-v5';
 const SHELL = [
   './',
   './index.html',
